@@ -1,0 +1,24 @@
+menu "Joystick"
+
+    config INPUT_JOY_UP_GPIO
+        int "Up GPIO"
+        range 0 SOC_GPIO_PIN_COUNT
+        default 41
+    config INPUT_JOY_DOWN_GPIO
+        int "Down GPIO"
+        range 0 SOC_GPIO_PIN_COUNT
+        default 43
+    config INPUT_JOY_LEFT_GPIO
+        int "Left GPIO"
+        range 0 SOC_GPIO_PIN_COUNT
+        default 2
+    config INPUT_JOY_RIGHT_GPIO
+        int "Right GPIO"
+        range 0 SOC_GPIO_PIN_COUNT
+        default 42
+    config INPUT_JOY_CENTER_GPIO
+        int "Center GPIO"
+        range 0 SOC_GPIO_PIN_COUNT
+        default 44
+
+endmenu

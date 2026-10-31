@@ -4,7 +4,7 @@
 #include "esp_log.h"
 #include "esp_timer.h"
 
-#include "badge.h"
+#include "display.h"
 #include "i2c_manager.h"
 #include "minibadge.h"
 

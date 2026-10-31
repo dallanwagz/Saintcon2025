@@ -1,3 +1,3 @@
 idf_component_register(SRCS "display.c"
                        INCLUDE_DIRS "include"
-                       REQUIRES "badge" "driver" "input" "lvgl" "esp_lcd" "i2c_manager")
+                       REQUIRES "driver" "esp_lcd" "esp_mm" "input" "lvgl")

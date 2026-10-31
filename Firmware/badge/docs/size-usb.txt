@@ -1,0 +1,25 @@
+# Phase 3b (USB HID transport in, off by default), repurpose branch, IDF v5.5.1, 2026-10-30
+
+badge.bin binary size 0x17a220 bytes. Smallest app partition is 0x400000 bytes. 0x285de0 bytes (63%) free.
+
+                            Memory Type Usage Summary                             
+┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━┓
+┃ Memory Type/Section ┃ Used [bytes] ┃ Used [%] ┃ Remain [bytes] ┃ Total [bytes] ┃
+┡━━━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━┩
+│ Flash Code          │      1065980 │          │                │               │
+│    .text            │      1065980 │          │                │               │
+│ Flash Data          │       360784 │          │                │               │
+│    .rodata          │       360528 │          │                │               │
+│    .appdesc         │          256 │          │                │               │
+│ DIRAM               │       144035 │    42.15 │         197725 │        341760 │
+│    .text            │        84911 │    24.85 │                │               │
+│    .bss             │        38496 │    11.26 │                │               │
+│    .data            │        20628 │     6.04 │                │               │
+│ IRAM                │        16384 │    100.0 │              0 │         16384 │
+│    .text            │        15356 │    93.73 │                │               │
+│    .vectors         │         1028 │     6.27 │                │               │
+│ RTC SLOW            │           32 │     0.39 │           8160 │          8192 │
+│    .force_slow      │           32 │     0.39 │                │               │
+│ RTC FAST            │           24 │     0.29 │           8168 │          8192 │
+│    .rtc_reserved    │           24 │     0.29 │                │               │
+└─────────────────────┴──────────────┴──────────┴────────────────┴───────────────┘

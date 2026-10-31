@@ -17,8 +17,7 @@ extern "C" {
     X(SET_WIFI_STATE)      \
     X(SET_BATTERY_LEVEL)   \
     X(SET_APP)             \
-    X(OTA_STATE)           \
-    X(BADGE_CONFIG_UPDATED)
+    X(RERENDER)
 #undef X
 typedef enum {
 #define X(val) UI_EVENT_##val,
@@ -36,7 +35,6 @@ typedef struct {
         wifi_status_t wifi_state;
         battery_level_t battery_level;
         content_app_t app;
-        ota_state_t ota_state;
     } data;
 } __attribute__((aligned(4))) ui_event_t;
 

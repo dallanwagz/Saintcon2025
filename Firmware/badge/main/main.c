@@ -5,18 +5,20 @@
 
 #include "badge.h"
 #include "battery.h"
-#include "dawn_accord.h"
 #include "display.h"
+#include "driver/gpio.h"
+#include "esp_system.h"
+#include "hid.h"
+#include "hid_profiles.h"
 #include "i2c_manager.h"
-#include "ops_nfc.h"
+#include "led.h"
+#include "led_patterns.h"
 #include "minibadge.h"
 #include "nvs.h"
-#include "secure_element.h"
+#include "ops_nfc.h"
 #include "ui.h"
 #include "wifi_manager.h"
-#include "led.h"
 
-#include "cryptoauthlib.h"
 #include <math.h>
 
 #ifndef M_PI
@@ -24,6 +26,8 @@
 #endif
 
 static const char *TAG = "main";
+
+#define HID_DEVICE_NAME "SC25 Wrench"
 
 #ifndef BOOT_PROGRESS_MAX_BRIGHTNESS
     #define BOOT_PROGRESS_MAX_BRIGHTNESS 40
@@ -188,6 +192,24 @@ static void boot_progress_render(uint32_t now_ms, void *user_ctx) {
 
 void battery_monitor_task(void *pvParameters);
 
+// Runs in the BLE host task: LED feedback + refresh the HID app if it is on screen
+static void hid_state_changed(hid_state_t state) {
+    switch (state) {
+        case HID_STATE_ADVERTISING:
+            led_pattern_ease(0, 90, 255, 1200, 100, 1200, 800, true, 50); // slow blue breathe while looking for a host
+            break;
+        case HID_STATE_CONNECTED:
+        case HID_STATE_USB_CONNECTED:
+            led_pattern_ease_stop();
+            led_layer_create_static_color_timed(LED_PRIORITY_HIGH, 0, 255, 60, 60, true, 600, true); // green blip
+            break;
+        default: led_pattern_ease_stop(); break;
+    }
+    if (get_current_app() == APP_HID || get_current_app() == APP_SETTINGS) {
+        ui_request_rerender();
+    }
+}
+
 void app_main(void) {
     esp_err_t err;
     int64_t start_time = esp_timer_get_time();
@@ -198,7 +220,7 @@ void app_main(void) {
 
     // Initialize LEDs first so progress is visible immediately
     if (led_init() == ESP_OK) {
-        boot_progress_set_total(10); // we expect 10 steps
+        boot_progress_set_total(10); // nvs, isr, i2c, badge, battery, display, nfc, ui, wifi, hid
         boot_progress_layer = led_layer_create(LED_PRIORITY_MEDIUM, boot_progress_render, NULL, true, false, true);
         if (boot_progress_layer < 0) {
             ESP_LOGW(TAG, "Failed to create boot progress layer");
@@ -226,32 +248,6 @@ void app_main(void) {
     err = i2c_manager_init_auto();
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize I2C manager: %s", esp_err_to_name(err));
-        return;
-    }
-    boot_progress_step();
-
-    // // DEBUG: Scan for all devices on the I2C bus and show their addresses
-    // i2c_manager_device_criteria_t criteria = {
-    //     .bus_index = I2C_BUS_OTHER, // Use the other bus for scanning
-    //     .address   = 0,             // Scan all addresses
-    // };
-    // i2c_manager_device_config_t *found = NULL;
-    // uint8_t device_count               = i2c_manager_discover(criteria, &found);
-    // ESP_LOGI(TAG, "Discovered %d I2C devices:", device_count);
-    // for (uint8_t i = 0; i < device_count; i++) {
-    //     ESP_LOGI(TAG, "Bus %d, Address 0x%02X (0x%02X)", found[i].bus_index, found[i].config.device_address,
-    //              found[i].config.device_address << 1);
-    // }
-    // if (found) {
-    //     free(found);
-    //     found = NULL;
-    // }
-    // // END DEBUG
-
-    // Initialize the secure element
-    err = se_init();
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize secure element: %s", esp_err_to_name(err));
         return;
     }
     boot_progress_step();
@@ -289,20 +285,14 @@ void app_main(void) {
         save_badge_config();
     }
     set_backlight(badge_config.screen_brightness);
+    led_set_brightness(badge_config.led_brightness);
+    led_idle_set((led_idle_pattern_t)badge_config.led_pattern);
 
-    // Initialize badge NFC handling (register callback, init NFC)
+    // Initialize badge NFC handling (register callback, init NFC). Not fatal: the rest of the badge still works.
     if (badge_nfc_init() != ESP_OK) {
         ESP_LOGE(TAG, "Badge NFC init failed");
-        return;
     }
     boot_progress_step();
-
-    // Initialize the Dawn Accord
-    err = dawn_accord_init();
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize Dawn Accord: %s", esp_err_to_name(err));
-    }
-    // boot_progress_step();
 
     // Initialize the minibadge handling
     err = minibadge_init();
@@ -315,13 +305,39 @@ void app_main(void) {
     ui_init();
     boot_progress_step();
 
-    // Initialize the WiFi manager
+    // Initialize the WiFi manager (a no-op stub unless CONFIG_WIFI_MANAGER_ENABLED) and mirror its status in the UI
+    add_wifi_status_callback(set_ui_state_wifi);
     err = wifi_manager_init();
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to initialize WiFi manager: %s", esp_err_to_name(err));
-        return;
     }
-    set_ui_state_wifi(WIFI_STATUS_CONNECTING);
+    set_ui_state_wifi(get_wifi_status());
+    boot_progress_step();
+
+    // BLE HID: the joystick becomes a keyboard / mouse / media remote. State changes drive the LEDs.
+    hid_set_state_callback(hid_state_changed);
+    hid_profiles_init();
+    hid_profile_set((hid_profile_t)badge_config.hid_profile);
+    err = hid_init(HID_DEVICE_NAME);
+    if (err != ESP_OK) {
+        ESP_LOGE(TAG, "Failed to start BLE HID: %s", esp_err_to_name(err));
+    }
+    // USB HID (TinyUSB) takes the USB port away from USB-Serial/JTAG, so it only starts when the setting says so,
+    // the centre button is not held at power-on, and the previous boot did not end in a crash (keeps the console
+    // and the flash port reachable without the JP1 jumper). The PHY mux survives soft resets: undo it first.
+    hid_usb_release_phy();
+    if (badge_config.usb_hid) {
+        esp_reset_reason_t why = esp_reset_reason();
+        bool crashed = why == ESP_RST_PANIC || why == ESP_RST_INT_WDT || why == ESP_RST_TASK_WDT || why == ESP_RST_WDT;
+        bool held    = gpio_get_level(CONFIG_INPUT_JOY_CENTER_GPIO) == 0;
+        if (held) {
+            ESP_LOGW(TAG, "USB HID skipped this boot: centre button held at power-on");
+        } else if (crashed) {
+            ESP_LOGW(TAG, "USB HID skipped this boot: the last boot crashed (reset reason %d)", (int)why);
+        } else if (hid_usb_start() != ESP_OK) {
+            ESP_LOGE(TAG, "USB HID failed to start; USB-Serial/JTAG keeps the port");
+        }
+    }
     boot_progress_step();
 
     // Now that all the boot steps are done, fade out the boot progress
@@ -358,6 +374,7 @@ void battery_monitor_task(void *pvParameters) {
         if (bits & BATTERY_UPDATE) {
             battery_status_t status = battery_get_status();
             set_ui_state_battery(status.level);
+            hid_set_battery(status.percentage);
         }
     }
 }

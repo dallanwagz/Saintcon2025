@@ -1,3 +1,3 @@
-idf_component_register(SRCS "input.c" "touch.c"
+idf_component_register(SRCS "input.c"
                        INCLUDE_DIRS "include"
-                       REQUIRES "display" "driver" "esp_lcd" "i2c_manager" "lvgl" "minibadge")
+                       REQUIRES "display" "i2c_manager" "joystick" "lvgl" "minibadge")

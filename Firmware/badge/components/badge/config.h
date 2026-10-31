@@ -18,14 +18,9 @@ extern "C" {
  *       files.                                                                *
  *******************************************************************************/
 
+// Only still used by the v1 struct (kept so old badges can be migrated)
 #define PLAYER_NAME_LENGTH 64
 #define TEAM_NAME_LENGTH   64
-
-// Wrist selection
-typedef enum {
-    BADGE_WRIST_LEFT,
-    BADGE_WRIST_RIGHT,
-} badge_wrist_t;
 
 /*******************************************************************************
  *                          CONFIGURATION VERSIONING                           *
@@ -37,9 +32,12 @@ typedef enum {
 
 // Include all config versions here
 #include "config/config_v1.h"
+#include "config/config_v2.h"
+#include "config/config_v3.h"
+#include "config/config_v4.h"
 
 // Define the current config version
-#define BADGE_CONFIG_VERSION 1
+#define BADGE_CONFIG_VERSION 4
 
 /*******************************************************************************
  *                            BADGE CONFIGURATION                              *
@@ -55,9 +53,7 @@ typedef BCT(BADGE_CONFIG_VERSION) badge_config_t;
 #define BCD(v)         BCDV(v)
 #define BADGE_DEFAULTS BCD(BADGE_CONFIG_VERSION)
 
-// Define the default config struct
 extern badge_config_t badge_config;
-extern badge_config_t badge_defaults;
 
 /**
  * @brief Load the badge configuration

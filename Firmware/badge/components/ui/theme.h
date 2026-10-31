@@ -99,18 +99,12 @@ extern "C" {
 #define MENU_BUTTON_TEXT   WHITE
 
 // Various fonts
-LV_FONT_DECLARE(bm_mini_8);
-LV_FONT_DECLARE(bm_mini_16);
 LV_FONT_DECLARE(clarity_14);
 LV_FONT_DECLARE(clarity_16);
-// LV_FONT_DECLARE(clarity_18);
-// LV_FONT_DECLARE(clarity_20);
-// LV_FONT_DECLARE(clarity_22);
 LV_FONT_DECLARE(clarity_24);
 LV_FONT_DECLARE(open_dyslexic_reg_16);
 LV_FONT_DECLARE(white_rabbit_16);
 LV_FONT_DECLARE(white_rabbit_18);
-LV_FONT_DECLARE(white_rabbit_20);
 LV_FONT_DECLARE(white_rabbit_22);
 
 // Clarity icons
@@ -120,7 +114,6 @@ LV_FONT_DECLARE(white_rabbit_22);
 #define CLARITY_ARROW_DOWN  "\xE2\x86\x93"
 
 // Icon fonts
-// LV_FONT_DECLARE(fa_sharp_icons_16);
 LV_FONT_DECLARE(fa_duotone_icons_16);
 
 // Icon font symbols
@@ -146,11 +139,6 @@ LV_FONT_DECLARE(fa_duotone_icons_16);
 #define FA_MAP                    u8"\uF279"
 #define FA_GEAR                   u8"\uF013"
 #define FA_WRENCH                 u8"\uF0AD"
-
-// Images
-// LV_IMG_DECLARE(theme_screens);
-LV_IMG_DECLARE(left_bump);
-LV_IMG_DECLARE(right_bump);
 
 // Styles
 extern lv_style_t button_style;

@@ -963,6 +963,11 @@ void nav_autolink(nav_ctx_t *ctx) {
         return;
     }
 
+    // Geometry must be current. Objects created in this frame still carry the constructor's placeholder
+    // coordinates (a zero-size rect at the parent's origin), which makes every sibling look 1 px "below"
+    // the current one and links the whole list to whichever node happens to be first.
+    lv_obj_update_layout(ctx->scope_root);
+
     for (nav_node_t *n = ctx->head; n; n = n->next) {
         for (int d = 0; d < NAV_DIR_COUNT; d++) {
             if (!n->nbr[d]) {

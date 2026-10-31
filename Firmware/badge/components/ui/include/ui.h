@@ -34,7 +34,6 @@ typedef enum {
     SCREEN_NONE,   // No screen
     SCREEN_SPLASH, // The splash screen
     SCREEN_MAIN,   // The main screen
-    SCREEN_UPDATE, // The OTA firmware update screen
     SCREEN_HWTEST, // The hardware test screen
 } ui_screen_t;
 
@@ -57,13 +56,14 @@ bool ui_ready();
 void set_screen(ui_screen_t screen);
 void set_ui_state_wifi(wifi_status_t state);
 void set_ui_state_battery(battery_level_t level);
-void set_ui_state_ota(ota_state_t state);
-void notify_badge_config_updated();
 ui_state_t get_ui_state();
 
 // Expose additional things from the main screen
 #include "../screens/main.h"
 void launch_app(content_app_t app);
+
+/** Rebuild the current app from any task (enqueued; safe to call from BLE / joystick tasks). */
+void ui_request_rerender(void);
 
 #ifdef __cplusplus
 }

@@ -1,71 +1,24 @@
 #include "input.h"
 #include "esp_log.h"
-#include "esp_sleep.h"
-#include "driver/gpio.h"
 
 #include "display.h"
+#include "joystick.h"
 #include "minibadge.h"
 #include "i2c_manager.h"
-#ifdef CONFIG_INPUT_TOUCH_ENABLED
-    #include "esp_lcd_touch.h"
-#endif
 
 static const char *TAG __attribute__((unused)) = "input";
 
 static lv_indev_t *g_indev = NULL;
+static bool g_passthrough                 = false;
+static bool g_passthrough_release_pending = false; // hand the stick back only once nothing is pressed
 
-#ifdef CONFIG_INPUT_JOYSTICK_ENABLED
 // Minibadge D-pad state tracking
 static uint32_t minibadge_last_key                                 = 0;
 static bool minibadge_key_pressed                                  = false;
 static minibadge_slot_t minibadge_dpad_slots[MINIBADGE_SLOT_COUNT] = {0};
 static int minibadge_dpad_count                                    = 0;
 static minibadge_slot_t minibadge_dpad_active_slot                 = (minibadge_slot_t)(-1); // only one logical D-pad supported
-#endif
 
-#ifdef CONFIG_INPUT_TOUCH_ENABLED
-// Touch handle
-static esp_lcd_touch_handle_t tp = NULL;
-
-// copy+adapt your init_lcd_touch() here, minus the lv_indev bits…
-static void init_touch_panel() {
-    i2c_manager_bus_t *bus = i2c_manager_get_bus(I2C_BUS_TOUCH);
-    assert(bus);
-    display_orientation_params_t params = get_display_orientation_params();
-    esp_lcd_touch_config_t cfg          = {
-                 .x_max        = params.v_res,
-                 .y_max        = params.h_res,
-                 .sda_gpio_num = CONFIG_INPUT_TOUCH_SDA_GPIO,
-                 .scl_gpio_num = CONFIG_INPUT_TOUCH_SCL_GPIO,
-                 .int_gpio_num = (CONFIG_INPUT_TOUCH_INT_GPIO >= 0) ? CONFIG_INPUT_TOUCH_INT_GPIO : GPIO_NUM_NC,
-                 .rst_gpio_num = (CONFIG_INPUT_TOUCH_RST_GPIO >= 0) ? CONFIG_INPUT_TOUCH_RST_GPIO : GPIO_NUM_NC,
-                 .flags =
-            {
-                         .swap_xy  = params.swap_xy,
-                         .mirror_x = params.mirror_x,
-                         .mirror_y = params.mirror_y,
-            },
-    };
-    ESP_ERROR_CHECK(esp_lcd_new_panel_io_i2c(bus->handle, &cfg, &tp));
-    ESP_LOGI(TAG, "Touch panel initialized");
-}
-
-// copy+adapt your lvgl_touch_cb() here:
-static void lvgl_touch_cb(lv_indev_t *indev, lv_indev_data_t *data) {
-    (void)indev;
-    bool pressed = false;
-    uint16_t x = 0, y = 0;
-    esp_err_t err = esp_lcd_touch_read_data(tp);
-    if (err == ESP_OK) {
-        pressed = esp_lcd_touch_get_coordinates(tp, &x, &y, NULL, NULL, 1);
-    }
-    data->state   = pressed ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
-    data->point.x = x;
-    data->point.y = y;
-}
-#endif // CONFIG_INPUT_TOUCH_ENABLED
-
-#ifdef CONFIG_INPUT_JOYSTICK_ENABLED
 // Map minibadge D-pad state to LVGL key codes
 static uint32_t minibadge_dpad_state_to_key(minibadge_dpad_state_t state) {
     switch (state) {
@@ -135,11 +88,22 @@ static void minibadge_insertion_callback(minibadge_event_t event) {
 
 static void joystick_read_cb(lv_indev_t *indev, lv_indev_data_t *data) {
     static uint32_t last_key = 0;
-    bool up                  = (gpio_get_level(CONFIG_INPUT_JOY_UP_GPIO) == 0);
-    bool down                = (gpio_get_level(CONFIG_INPUT_JOY_DOWN_GPIO) == 0);
-    bool left                = (gpio_get_level(CONFIG_INPUT_JOY_LEFT_GPIO) == 0);
-    bool right               = (gpio_get_level(CONFIG_INPUT_JOY_RIGHT_GPIO) == 0);
-    bool center              = (gpio_get_level(CONFIG_INPUT_JOY_CENTER_GPIO) == 0);
+    uint8_t joy              = joystick_get_state();
+    if (g_passthrough) { // someone else (HID) owns the stick: report nothing to LVGL
+        if (g_passthrough_release_pending && joy == 0 && !minibadge_key_pressed) {
+            g_passthrough                 = false; // the press that ended HID mode never reaches the UI
+            g_passthrough_release_pending = false;
+        }
+        data->state = LV_INDEV_STATE_RELEASED;
+        data->key   = 0;
+        last_key    = 0;
+        return;
+    }
+    bool up     = joy & JOY_BIT(JOY_UP);
+    bool down   = joy & JOY_BIT(JOY_DOWN);
+    bool left   = joy & JOY_BIT(JOY_LEFT);
+    bool right  = joy & JOY_BIT(JOY_RIGHT);
+    bool center = joy & JOY_BIT(JOY_CENTER);
 
     // Merge hardware joystick and minibadge D-pad inputs
     bool any_pressed = up || down || left || right || center || minibadge_key_pressed;
@@ -172,49 +136,11 @@ static void joystick_read_cb(lv_indev_t *indev, lv_indev_data_t *data) {
         last_key = 0; // Reset last key when no button is pressed
     }
 }
-#endif // CONFIG_INPUT_JOYSTICK_ENABLED
 
 void input_init(lv_display_t *display) {
-#ifdef CONFIG_INPUT_TOUCH_ENABLED
-    init_touch_panel();
-    lv_indev_t *touch_indev = lv_indev_create();
-    lv_indev_set_type(touch_indev, LV_INDEV_TYPE_POINTER);
-    lv_indev_set_display(touch_indev, display);
-    lv_indev_set_read_cb(touch_indev, lvgl_touch_cb);
-    lv_indev_set_mode(touch_indev, LV_INDEV_MODE_TIMER);
-    g_indev = touch_indev;
-#endif
-
-#ifdef CONFIG_INPUT_JOYSTICK_ENABLED
-    static const gpio_num_t gpio_list[] = {
-        CONFIG_INPUT_JOY_UP_GPIO,     //
-        CONFIG_INPUT_JOY_DOWN_GPIO,   //
-        CONFIG_INPUT_JOY_LEFT_GPIO,   //
-        CONFIG_INPUT_JOY_RIGHT_GPIO,  //
-        CONFIG_INPUT_JOY_CENTER_GPIO, //
-    };
-
-    // configure GPIOs
-    gpio_config_t io = {
-        .mode         = GPIO_MODE_INPUT,
-        .pull_up_en   = GPIO_PULLUP_ENABLE,
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
-        .intr_type    = GPIO_INTR_DISABLE,
-    };
-    uint64_t pin_mask = 0;
-    for (size_t i = 0; i < sizeof(gpio_list) / sizeof(gpio_list[0]); i++) {
-        pin_mask |= (1ULL << gpio_list[i]);
-    }
-    io.pin_bit_mask = pin_mask;
-    gpio_config(&io);
-
-    // Enable pressing to wake from light sleep
-    for (size_t i = 0; i < sizeof(gpio_list) / sizeof(gpio_list[0]); i++) {
-        gpio_wakeup_enable(gpio_list[i], GPIO_INTR_LOW_LEVEL);
-    }
-    // Arm GPIO wakeup
-    if (esp_sleep_enable_gpio_wakeup() != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to enable GPIO wakeup - wakeup triggers conflict");
+    (void)display;
+    if (joystick_init() != ESP_OK) {
+        ESP_LOGE(TAG, "Joystick init failed");
     }
 
     lv_group_t *g = lv_group_create();
@@ -234,9 +160,21 @@ void input_init(lv_display_t *display) {
     } else {
         ESP_LOGW(TAG, "Failed to request minibadge D-pad handler registration");
     }
-#endif
 }
 
 lv_indev_t *input_get_device() {
     return g_indev;
+}
+
+void input_set_passthrough(bool enable) {
+    if (enable) {
+        g_passthrough                 = true;
+        g_passthrough_release_pending = false;
+    } else {
+        g_passthrough_release_pending = true; // dropped by the read callback once the stick is released
+    }
+}
+
+bool input_get_passthrough(void) {
+    return g_passthrough;
 }

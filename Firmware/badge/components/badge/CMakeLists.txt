@@ -1,7 +1,3 @@
-# Operations/tasks related to the badge
-set(ops_sources)
-file(GLOB_RECURSE ops_sources ops/ *.c)
-
-idf_component_register(SRCS "badge.c" "config.c" "migrate.c" "ota.c" "version.c" ${ops_sources}
+idf_component_register(SRCS "badge.c" "config.c" "migrate.c" "version.c" "ops/nfc.c"
                        INCLUDE_DIRS "include" "include/badge"
-                       REQUIRES "api" "badge_game" "dawn_accord" "display" "led" "nfc" "nvs" "secure_element" "spiffs" "ui" "wifi_manager")
+                       REQUIRES "display" "esp_app_format" "led_patterns" "nfc" "nvs" "spiffs")

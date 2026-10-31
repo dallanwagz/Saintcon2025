@@ -8,11 +8,10 @@
 #include "content.h"
 
 // Content area apps
-#include "apps/code.h"
-#include "apps/credits.h"
-#include "apps/game.h"
-#include "apps/map.h"
+#include "apps/hid.h"
+#include "apps/leds.h"
 #include "apps/menu.h"
+#include "apps/nfc.h"
 #include "apps/settings.h"
 
 static const char *TAG = "screens/main [content]";
@@ -229,20 +228,17 @@ void update_content_area() {
             menu_app_create(content_area);
             lv_obj_add_flag(home_button, LV_OBJ_FLAG_HIDDEN);
             break;
-        case APP_GAME: //
-            game_app_create(content_area);
+        case APP_HID: //
+            hid_app_create(content_area);
+            break;
+        case APP_LEDS: //
+            leds_app_create(content_area);
+            break;
+        case APP_NFC: //
+            nfc_app_create(content_area);
             break;
         case APP_SETTINGS: //
             settings_app_create(content_area);
-            break;
-        case APP_CODE: //
-            code_app_create(content_area);
-            break;
-        case APP_CREDITS: //
-            credits_app_create(content_area);
-            break;
-        case APP_MAP: //
-            map_app_create(content_area);
             break;
         default: //
             ESP_LOGW(TAG, "Unknown content app: %d", content_state.app);

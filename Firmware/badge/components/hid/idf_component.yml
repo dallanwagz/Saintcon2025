@@ -1,0 +1,4 @@
+## IDF Component Manager Manifest File
+dependencies:
+  # USB HID + CDC transport (Phase 3b). The 1.x line is what IDF 5.5.1's own tusb_* examples pin.
+  espressif/esp_tinyusb: "^1.7"

@@ -6,6 +6,7 @@
 #include "theme.h"
 #include "wifi_manager.h"
 #include "battery.h"
+#include "../../../hid/include/hid.h" // the hid component; apps/ has its own hid.h
 
 #include "status.h"
 
@@ -18,6 +19,7 @@ static lv_timer_t *wifi_animation_timer = NULL;
 static lv_obj_t *clock_label            = NULL;
 static lv_obj_t *wifi_icon              = NULL;
 static lv_obj_t *battery_icon           = NULL;
+static lv_obj_t *hid_label              = NULL; // "USB" / "BT": which HID transport is up and whether a host is on it
 
 // WiFi animation state
 static uint8_t wifi_animation_frame      = 0;
@@ -54,8 +56,27 @@ static const char *get_formatted_time() {
     return time_buffer;
 }
 
+// ponytail: polled from the 1 s clock tick instead of a new UI event; an indicator can lag a second
+static void refresh_hid_label(void) {
+    if (!hid_label) {
+        return;
+    }
+    bool usb       = hid_usb_active();
+    uint32_t color = GRAY_SHADE_2; // transport off (another BLE role holds the radio)
+    if (usb) {
+        color = hid_usb_mounted() ? GREEN_MAIN : YELLOW_MAIN;
+    } else if (hid_get_state() == HID_STATE_CONNECTED) {
+        color = GREEN_MAIN;
+    } else if (hid_get_state() == HID_STATE_ADVERTISING) {
+        color = YELLOW_MAIN;
+    }
+    lv_label_set_text(hid_label, usb ? "USB" : "BT");
+    lv_obj_set_style_text_color(hid_label, lv_color_hex(color), LV_PART_MAIN);
+}
+
 static void clock_timer_cb(lv_timer_t *timer) {
     lv_label_set_text(clock_label, get_formatted_time());
+    refresh_hid_label();
 }
 
 static void wifi_animation_timer_cb(lv_timer_t *timer) {
@@ -113,6 +134,11 @@ lv_obj_t *create_status_bar(lv_obj_t *parent) {
     lv_obj_set_style_border_width(icon_tray, 0, LV_PART_MAIN);
     lv_obj_set_style_radius(icon_tray, 5, LV_PART_MAIN);
 
+    // HID transport (USB or Bluetooth): green = a host is on it, yellow = waiting for one, grey = off
+    hid_label = lv_label_create(icon_tray);
+    lv_obj_set_style_text_font(hid_label, &lv_font_montserrat_14, LV_PART_MAIN);
+    refresh_hid_label();
+
     // WiFi status
     wifi_icon = lv_label_create(icon_tray);
     lv_obj_set_size(wifi_icon, 18, 18);
@@ -136,6 +162,7 @@ lv_obj_t *create_status_bar(lv_obj_t *parent) {
 }
 
 void update_status_bar(ui_state_t *state) {
+    refresh_hid_label();
     // Update WiFi status icon based on state
     if (wifi_icon != NULL) {
         // Handle WiFi status change

@@ -12,9 +12,7 @@
 
 // Includes for things to test
 #include "badge.h"
-#include "i2c_manager.h"
 #include "input.h"
-#include "secure_element.h"
 #include "nfc.h"
 #include "led.h"
 #include "battery.h"
@@ -29,11 +27,8 @@ static const char *TAG = "screens/hwtest";
 typedef enum {
     HWTEST_NONE,         // No test selected
     HWTEST_JOYSTICK,     // Input - joystick / d-pad
-    HWTEST_CHIPS,        // Basic I2C comms (Crypto + NFC)
-    HWTEST_CRYPTO_SETUP, // Secure element provisioning / lock state
+    HWTEST_CHIPS,        // Basic I2C comms (NFC)
     HWTEST_RGB_LEDS,     // RGB LED patterns
-    HWTEST_AI_INHIBIT,   // AI Inhibitor
-    HWTEST_AI_SECURITY,  // AI Security Strip
 } hwtest_t;
 
 // Strings for the hardware test names
@@ -41,10 +36,7 @@ static const char *hwtest_labels[] = {
     "None",         //
     "Joystick",     //
     "Chip Comms",   //
-    "Crypto Setup", //
     "RGB LEDs",     //
-    "AI Inhibitor", //
-    "AI Security",  //
 };
 #define HWTEST_COUNT (sizeof(hwtest_labels) / sizeof(hwtest_labels[0]))
 
@@ -86,8 +78,6 @@ static lv_style_t button_row;
 // Test overlay objects
 static lv_obj_t *joystick_overlay     = NULL;
 static lv_obj_t *rgb_led_overlay      = NULL;
-static lv_obj_t *crypto_setup_overlay = NULL;
-static lv_timer_t *crypto_bg_timer    = NULL;
 
 static bool styles_initialized = false;
 
@@ -98,12 +88,11 @@ nav_ctx_t *hwtest_nav_ctx = NULL;
 
 // Chip test objects
 typedef enum {
-    HWTEST_CHIP_CRYPTO,
     HWTEST_CHIP_NFC,
 } chips_t;
-static const char *chips[] = {"Crypto", "NFC"};
+static const char *chips[] = {"NFC"};
 #define CHIP_TEST_COUNT (sizeof(chips) / sizeof(chips[0]))
-static chips_t chip_test_current                          = HWTEST_CHIP_CRYPTO;
+static chips_t chip_test_current                          = HWTEST_CHIP_NFC;
 static hwtest_result_t chip_test_results[CHIP_TEST_COUNT] = {HWTEST_RESULT_NONE};
 
 static nav_scope_guard_t chip_test_nav_guard;
@@ -122,10 +111,6 @@ static lv_obj_t *joystick_left_indicator   = NULL;
 static lv_obj_t *joystick_right_indicator  = NULL;
 static lv_obj_t *joystick_center_indicator = NULL;
 static bool joystick_test_complete[5]      = {false}; // up, down, left, right, center
-
-// Crypto setup test objects
-static lv_style_t crypto_btn;
-static lv_style_t crypto_btn_focused;
 
 // RGB LED test state
 static nav_scope_guard_t rgb_led_nav_guard;
@@ -187,9 +172,6 @@ static lv_style_t rgb_list_button_focused;
 static lv_style_t rgb_back_button;
 static lv_style_t rgb_back_button_focused;
 
-// Set this to 1 to force API/WiFi stages to show pending for development/testing
-#define HWTEST_FORCE_PENDING 0
-
 // Main function prototypes
 static void hwtest_initialize_styles();
 static void hwtest_update_theme();
@@ -208,14 +190,7 @@ static void hwtest_start_chip_test(lv_obj_t *parent);
 static void chip_test_run_next(lv_timer_t *timer);
 static void chip_test_render_results();
 static void chip_test_continue_event_cb(lv_event_t *e);
-static bool test_crypto_comms();
 static bool test_nfc_comms();
-
-// Crypto setup (provisioning status) test functions
-static void hwtest_start_crypto_setup_test(lv_obj_t *parent);
-static void crypto_setup_poll_timer_cb(lv_timer_t *timer);
-static void crypto_setup_close_event_cb(lv_event_t *e);
-static void crypto_bg_poll_timer_cb(lv_timer_t *timer);
 
 // Joystick test functions
 static void hwtest_start_joystick_test(lv_obj_t *parent);
@@ -312,17 +287,6 @@ static void hwtest_initialize_styles() {
     lv_style_set_size(&button_row, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
     lv_style_set_bg_opa(&button_row, LV_OPA_TRANSP);
     lv_style_set_border_width(&button_row, 0);
-
-    // Crypto button main style
-    lv_style_init(&crypto_btn);
-    lv_style_set_bg_color(&crypto_btn, lv_color_hex(BLUE_DIMMEST));
-    lv_style_set_border_color(&crypto_btn, lv_color_hex(BLUE_MAIN));
-
-    // Crypto button focused style
-    lv_style_init(&crypto_btn_focused);
-    lv_style_set_bg_color(&crypto_btn_focused, lv_color_hex(BLUE_LIGHT));
-    lv_style_set_border_color(&crypto_btn_focused, lv_color_hex(BLUE_LIGHTER));
-    lv_style_set_outline_color(&crypto_btn_focused, lv_color_hex(BLUE_LIGHTER));
 
     // Initialize slider main style
     lv_style_init(&rgb_brightness_slider);
@@ -449,11 +413,6 @@ lv_obj_t *create_hwtest_screen() {
     // Run the quick tests
     hwtest_quick_tests();
 
-    if (hwtest_results[HWTEST_CRYPTO_SETUP] == HWTEST_RESULT_PENDING && crypto_bg_timer == NULL) {
-        crypto_bg_timer = lv_timer_create(crypto_bg_poll_timer_cb, 1000, NULL);
-        lv_timer_ready(crypto_bg_timer);
-    }
-
     return scr_hwtest;
 }
 
@@ -574,27 +533,8 @@ static void hwtest_set_result(hwtest_t test, hwtest_result_t result) {
     hwtest_update_theme();
 }
 
-static void crypto_bg_poll_timer_cb(lv_timer_t *timer) {
-    if (hwtest_results[HWTEST_CRYPTO_SETUP] != HWTEST_RESULT_PENDING) {
-        lv_timer_delete(timer);
-        crypto_bg_timer = NULL;
-        return;
-    }
-    extern badge_state_t badge_state;
-    bool provisioned = badge_state.provision_state.api_secrets && badge_state.provision_state.wifi_creds;
-    if (se_ready() && provisioned) {
-        hwtest_set_result(HWTEST_CRYPTO_SETUP, HWTEST_RESULT_PASSED);
-        lv_timer_delete(timer);
-        crypto_bg_timer = NULL;
-    }
-}
-
 static void hwtest_screen_delete_event_cb(lv_event_t *e) {
     (void)e;
-    if (crypto_bg_timer) {
-        lv_timer_delete(crypto_bg_timer);
-        crypto_bg_timer = NULL;
-    }
     if (hwtest_led_layer_handle >= 0) {
         led_layer_destroy(hwtest_led_layer_handle);
         hwtest_led_layer_handle = -1;
@@ -717,19 +657,9 @@ static void hwtest_list_event_cb(lv_event_t *e) {
             case HWTEST_JOYSTICK: //
                 hwtest_start_joystick_test(scr_hwtest);
                 break;
-            case HWTEST_CRYPTO_SETUP: //
-                hwtest_start_crypto_setup_test(scr_hwtest);
-                break;
             case HWTEST_RGB_LEDS: //
                 hwtest_start_rgb_led_test(scr_hwtest);
                 break;
-            case HWTEST_AI_INHIBIT: //
-                // hwtest_start_ai_inhibit_test(scr_hwtest);
-                break;
-            case HWTEST_AI_SECURITY: //
-                // hwtest_start_ai_security_test(scr_hwtest);
-                break;
-            // HWTEST_POWER case removed - not applicable for this badge
             default: break;
         }
     }
@@ -764,8 +694,8 @@ static void hwtest_button_event_cb(lv_event_t *e) {
  *****************************************************/
 
 static void hwtest_quick_tests() {
-    // Run quick tests for chip communications (NFC and Secure Element)
-    bool chip_pass = test_crypto_comms() && test_nfc_comms();
+    // Quick test for chip communications (NFC)
+    bool chip_pass = test_nfc_comms();
     hwtest_set_result(HWTEST_CHIPS, chip_pass ? HWTEST_RESULT_PASSED : HWTEST_RESULT_FAILED);
 
     // Quick test for RGB LEDs.
@@ -793,33 +723,10 @@ static void hwtest_quick_tests() {
     // Joystick test starts as none - requires user interaction
     hwtest_set_result(HWTEST_JOYSTICK, HWTEST_RESULT_NONE);
 
-    gpio_set_direction(5, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(5, GPIO_PULLUP_ENABLE);
-    gpio_set_direction(4, GPIO_MODE_INPUT);
-    gpio_set_pull_mode(4, GPIO_PULLUP_ENABLE);
-    if (gpio_get_level(5) == 0) {
-        hwtest_set_result(HWTEST_AI_INHIBIT, HWTEST_RESULT_PASSED);
-    } else {
-        hwtest_set_result(HWTEST_AI_INHIBIT, HWTEST_RESULT_FAILED);
-    }
-    if (gpio_get_level(4) == 0) {
-        hwtest_set_result(HWTEST_AI_SECURITY, HWTEST_RESULT_PASSED);
-    } else {
-        hwtest_set_result(HWTEST_AI_SECURITY, HWTEST_RESULT_FAILED);
-    }
-
-    // Crypto setup (provisioning) quick state
-#if HWTEST_FORCE_PENDING
-    hwtest_set_result(HWTEST_CRYPTO_SETUP, HWTEST_RESULT_PENDING);
-#else
-    bool provisioned = badge_state.provision_state.api_secrets && badge_state.provision_state.wifi_creds;
-    hwtest_set_result(HWTEST_CRYPTO_SETUP, se_ready() && provisioned ? HWTEST_RESULT_PASSED : HWTEST_RESULT_PENDING);
-#endif
-
     // Check if all other tests (excluding joystick) passed
     bool all_passed = true;
     for (int i = 1; i < HWTEST_COUNT; i++) {
-        if (i == HWTEST_JOYSTICK || i == HWTEST_CRYPTO_SETUP) { // Joystick requires interaction; Crypto can be pending
+        if (i == HWTEST_JOYSTICK) { // Joystick requires interaction
             continue;
         }
         if (hwtest_results[i] != HWTEST_RESULT_PASSED) {
@@ -917,9 +824,6 @@ static void chip_test_run_next(lv_timer_t *timer) {
 
     hwtest_result_t result = HWTEST_RESULT_NONE;
     switch (chip_test_current) {
-        case HWTEST_CHIP_CRYPTO: //
-            result = test_crypto_comms() ? HWTEST_RESULT_PASSED : HWTEST_RESULT_FAILED;
-            break;
         case HWTEST_CHIP_NFC: //
             result = test_nfc_comms() ? HWTEST_RESULT_PASSED : HWTEST_RESULT_FAILED;
             break;
@@ -994,17 +898,6 @@ static void chip_test_continue_event_cb(lv_event_t *e) {
     hwtest_set_result(HWTEST_CHIPS, overall_result ? HWTEST_RESULT_PASSED : HWTEST_RESULT_FAILED);
 }
 
-static bool test_crypto_comms() {
-    // Test that we can initialize and communicate with the secure element
-    esp_err_t ret = se_init();
-    if (ret != ESP_OK) {
-        return false;
-    }
-
-    // Check if the secure element is ready/provisioned
-    return se_ready();
-}
-
 static bool test_nfc_comms() {
     // If already initialized, consider comms healthy
     if (nfc_ready()) {
@@ -1017,191 +910,6 @@ static bool test_nfc_comms() {
     }
     nfc_deinit();
     return true;
-}
-
-/*****************************************************
- * Crypto Setup (Provisioning Status) Test Functions *
- *****************************************************/
-
-typedef enum {
-    CRYPTO_STAGE_CONFIG_LOCK = 0,
-    CRYPTO_STAGE_DATA_LOCK,
-    CRYPTO_STAGE_API_SECRETS,
-    CRYPTO_STAGE_WIFI_CREDS,
-    CRYPTO_STAGE_COUNT,
-} crypto_stage_t;
-
-static lv_timer_t *crypto_poll_timer = NULL;
-static lv_obj_t *crypto_stage_list   = NULL;
-
-static void crypto_setup_update_icons() {
-    if (!crypto_stage_list) {
-        return;
-    }
-    bool config_locked = se_config_locked();
-    bool data_locked   = se_data_locked();
-    bool api_ok        = badge_state.provision_state.api_secrets;
-    bool wifi_ok       = badge_state.provision_state.wifi_creds;
-    if (HWTEST_FORCE_PENDING) {
-        api_ok  = false;
-        wifi_ok = false;
-    }
-
-    bool stages_done[CRYPTO_STAGE_COUNT] = {
-        config_locked,
-        data_locked,
-        api_ok,
-        wifi_ok,
-    };
-
-    for (int i = 0; i < CRYPTO_STAGE_COUNT; i++) {
-        lv_obj_t *row = lv_obj_get_child(crypto_stage_list, i);
-        if (!row) {
-            continue;
-        }
-        lv_obj_t *icon = lv_obj_get_child(row, -1);
-        if (!icon) {
-            icon = lv_image_create(row);
-            lv_obj_set_size(icon, 18, 18);
-            lv_image_set_inner_align(icon, LV_IMAGE_ALIGN_CENTER);
-        }
-        const void *sym = LV_SYMBOL_MINUS;
-        if (stages_done[i]) {
-            sym = LV_SYMBOL_OK;
-            lv_obj_set_style_text_color(icon, lv_color_hex(WHITE), LV_PART_MAIN);
-        } else {
-            sym = LV_SYMBOL_REFRESH;
-            lv_obj_set_style_text_color(icon, lv_color_hex(WHITE), LV_PART_MAIN);
-        }
-        lv_image_set_src(icon, sym);
-    }
-
-    // If fully ready, mark test passed
-    if (config_locked && data_locked && api_ok && wifi_ok) {
-        if (crypto_poll_timer) {
-            lv_timer_delete(crypto_poll_timer);
-            crypto_poll_timer = NULL;
-        }
-        hwtest_set_result(HWTEST_CRYPTO_SETUP, HWTEST_RESULT_PASSED);
-    }
-}
-
-static void crypto_setup_poll_timer_cb(lv_timer_t *timer) {
-    (void)timer;
-    crypto_setup_update_icons();
-}
-
-static nav_scope_guard_t crypto_nav_guard;
-static nav_ctx_t *crypto_nav_ctx    = NULL;
-static lv_group_t *crypto_nav_group = NULL;
-
-static void crypto_setup_close_event_cb(lv_event_t *e) {
-    (void)e;
-    // Restore nav context
-    nav_scope_pop(input_get_device(), crypto_nav_guard);
-    if (crypto_nav_ctx) {
-        nav_ctx_destroy(crypto_nav_ctx);
-        crypto_nav_ctx = NULL;
-    }
-    if (crypto_nav_group) {
-        lv_group_delete(crypto_nav_group);
-        crypto_nav_group = NULL;
-    }
-    if (crypto_poll_timer) {
-        lv_timer_delete(crypto_poll_timer);
-        crypto_poll_timer = NULL;
-    }
-    if (crypto_setup_overlay && lv_obj_is_valid(crypto_setup_overlay)) {
-        lv_obj_delete(crypto_setup_overlay);
-        crypto_setup_overlay = NULL;
-    }
-}
-
-static void hwtest_start_crypto_setup_test(lv_obj_t *parent) {
-    crypto_setup_overlay = lv_obj_create(parent);
-    lv_obj_set_size(crypto_setup_overlay, LV_HOR_RES, LV_VER_RES);
-    lv_obj_set_style_bg_color(crypto_setup_overlay, lv_color_hex(BLUE_DIMMEST), LV_PART_MAIN);
-    lv_obj_set_style_bg_opa(crypto_setup_overlay, LV_OPA_COVER, LV_PART_MAIN);
-    lv_obj_set_style_border_width(crypto_setup_overlay, 2, LV_PART_MAIN);
-    lv_obj_set_style_border_color(crypto_setup_overlay, lv_color_hex(BLUE_MAIN), LV_PART_MAIN);
-    lv_obj_set_style_radius(crypto_setup_overlay, 1, LV_PART_MAIN);
-    lv_obj_align(crypto_setup_overlay, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_remove_flag(crypto_setup_overlay, LV_OBJ_FLAG_SCROLLABLE);
-    lv_obj_set_flex_flow(crypto_setup_overlay, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(crypto_setup_overlay, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-
-    // Navigation context
-    crypto_nav_group = lv_group_create();
-    crypto_nav_guard = nav_scope_push(input_get_device(), crypto_nav_group);
-    crypto_nav_ctx   = nav_ctx_create(input_get_device(), crypto_nav_group, crypto_setup_overlay);
-    nav_ctx_set_wrap(crypto_nav_ctx, false, false);
-
-    // Title
-    lv_obj_t *title = lv_label_create(crypto_setup_overlay);
-    lv_label_set_text(title, "Crypto Provisioning Status");
-    lv_label_set_long_mode(title, LV_LABEL_LONG_MODE_WRAP);
-    lv_obj_set_style_text_color(title, lv_color_hex(BLUE_LIGHTEST), LV_PART_MAIN);
-    lv_obj_set_style_text_font(title, &clarity_14, LV_PART_MAIN);
-    lv_obj_set_style_text_align(title, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN);
-    lv_obj_set_size(title, lv_pct(90), LV_SIZE_CONTENT);
-    lv_obj_align(title, LV_ALIGN_TOP_MID, 0, 10);
-
-    lv_obj_t *list_container = lv_obj_create(crypto_setup_overlay);
-    lv_obj_set_size(list_container, lv_pct(100), LV_SIZE_CONTENT);
-    lv_obj_set_style_bg_opa(list_container, LV_OPA_TRANSP, LV_PART_MAIN);
-    lv_obj_set_style_border_width(list_container, 0, LV_PART_MAIN);
-    lv_obj_set_style_radius(list_container, 0, LV_PART_MAIN);
-    lv_obj_set_style_pad_all(list_container, 0, LV_PART_MAIN);
-    lv_obj_set_flex_grow(list_container, 1);
-
-    crypto_stage_list = lv_list_create(list_container);
-    lv_obj_set_size(crypto_stage_list, lv_pct(100), lv_pct(100));
-    lv_obj_set_style_bg_opa(crypto_stage_list, LV_OPA_TRANSP, LV_PART_MAIN);
-    lv_obj_set_style_border_width(crypto_stage_list, 2, LV_PART_MAIN);
-    lv_obj_set_style_border_color(crypto_stage_list, lv_color_hex(BLUE_MAIN), LV_PART_MAIN);
-    lv_obj_set_style_radius(crypto_stage_list, 5, LV_PART_MAIN);
-    lv_obj_set_style_pad_ver(crypto_stage_list, 10, LV_PART_MAIN);
-    lv_obj_set_style_margin_ver(crypto_stage_list, 10, LV_PART_MAIN);
-
-    const char *stage_labels[CRYPTO_STAGE_COUNT] = {
-        "Config Zone",
-        "Data Zone",
-        "API Secrets",
-        "WiFi Creds",
-    };
-    for (int i = 0; i < CRYPTO_STAGE_COUNT; i++) {
-        lv_obj_t *row = lv_list_add_text(crypto_stage_list, stage_labels[i]);
-        lv_obj_set_style_bg_opa(row, LV_OPA_TRANSP, LV_PART_MAIN);
-        lv_obj_set_style_text_font(row, &clarity_14, LV_PART_MAIN);
-        lv_obj_set_style_text_color(row, lv_color_hex(WHITE), LV_PART_MAIN);
-
-        lv_obj_t *icon = lv_image_create(row);
-        lv_obj_set_size(icon, 18, 18);
-        lv_image_set_inner_align(icon, LV_IMAGE_ALIGN_CENTER);
-        lv_image_set_src(icon, LV_SYMBOL_MINUS);
-        lv_obj_set_style_text_font(icon, &lv_font_montserrat_14, LV_PART_MAIN);
-        lv_obj_set_style_text_color(icon, lv_color_hex(WHITE), LV_PART_MAIN);
-        lv_obj_align(icon, LV_ALIGN_RIGHT_MID, 0, 0);
-    }
-
-    lv_obj_t *close_btn = lv_button_create(crypto_setup_overlay);
-    lv_obj_add_style(close_btn, &test_button_style, LV_PART_MAIN);
-    lv_obj_add_style(close_btn, &crypto_btn, LV_PART_MAIN);
-    lv_obj_add_style(close_btn, &crypto_btn_focused, LV_PART_MAIN | LV_STATE_FOCUS_KEY);
-    lv_obj_t *close_label = lv_label_create(close_btn);
-    lv_label_set_text(close_label, "Back");
-    lv_obj_add_event_cb(close_btn, crypto_setup_close_event_cb, LV_EVENT_CLICKED, NULL);
-    nav_register(crypto_nav_ctx, close_btn);
-    nav_focus(crypto_nav_ctx, close_btn);
-
-    // Initial icon state update
-    crypto_setup_update_icons();
-
-    // Poll timer only if not ready yet
-    if (hwtest_results[HWTEST_CRYPTO_SETUP] == HWTEST_RESULT_PENDING) {
-        crypto_poll_timer = lv_timer_create(crypto_setup_poll_timer_cb, 1000, NULL);
-        lv_timer_ready(crypto_poll_timer);
-    }
 }
 
 /*****************************************************

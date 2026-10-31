@@ -15,11 +15,11 @@ extern "C" {
 #define CONTENT_APP_LIST                                \
     X(NONE,     "-",                LV_SYMBOL_DUMMY)    \
     X(MENU,     "Menu",             LV_SYMBOL_DUMMY)    \
-    X(GAME,     "Game",             FA_DICE_D6)         \
+    X(HID,      "HID Remote",       FA_DIALPAD)         \
+    X(LEDS,     "LEDs",             FA_DICE_D20)        \
+    X(NFC,      "NFC Tag",          FA_WIFI)            \
     X(SETTINGS, "Settings",         FA_WRENCH)          \
-    X(CODE,     "Code Entry",       FA_DIALPAD)         \
-    X(CREDITS,  "Credit Transfer",  FA_COINS)           \
-    X(MAP,      "Map",              FA_MAP)
+    X(HWTEST,   "Hardware Test",    FA_GEAR)
 #undef X
 // clang-format on
 typedef enum {
