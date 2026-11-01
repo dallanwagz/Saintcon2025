@@ -1,0 +1,67 @@
+# Home Assistant blueprint: one automation per row (or per popup entry) of the badge's HA Menu.
+# Import: Settings -> Automations & Scenes -> Blueprints -> Import, paste this file's raw GitHub URL,
+# or copy it to /config/blueprints/automation/wrench/menu_command.yaml and reload blueprints.
+blueprint:
+  name: Wrench menu command
+  description: >-
+    Run an action when a row of a Wrench badge's HA Menu is picked. The badge broadcasts a dimmer event
+    whose "steps" attribute carries the row number (shown on the badge next to the row): rotate_right with
+    steps = row for a plain row, rotate_left with steps = row*10 + entry for an entry of a popup row.
+    The row text also arrives as the badge's Text sensor, but only for the logbook: it is written after
+    the automation has already started, so the condition keys on the numbers.
+  domain: automation
+  source_url: https://github.com/dallanwagz/Saintcon2025/blob/repurpose/Firmware/badge/ha/wrench_menu_command.yaml
+  input:
+    dimmer:
+      name: Badge dimmer event
+      description: The badge's "Dimmer" event entity (event.<badge>_dimmer; it appears after the first menu press)
+      selector:
+        entity:
+          filter:
+            domain: event
+            integration: bthome
+    row:
+      name: Row number
+      description: The number shown next to the row on the badge (1 = first row)
+      selector:
+        number:
+          min: 1
+          max: 32
+          step: 1
+          mode: box
+    entry:
+      name: Entry number
+      description: For a popup row, the entry number shown on the badge; 0 for the row itself
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 9
+          step: 1
+          mode: box
+    action:
+      name: Action
+      selector:
+        action:
+mode: queued
+max: 10
+variables:
+  dimmer: !input dimmer
+  row: !input row
+  entry: !input entry
+triggers:
+  - trigger: event.received
+    target:
+      entity_id: !input dimmer
+    options:
+      event_type:
+        - rotate_right
+        - rotate_left
+conditions:
+  - condition: template
+    value_template: >-
+      {% set steps = state_attr(dimmer, 'steps') | int(0) %}
+      {% set kind = state_attr(dimmer, 'event_type') %}
+      {{ (entry | int == 0 and kind == 'rotate_right' and steps == row | int)
+         or (entry | int > 0 and kind == 'rotate_left' and steps == row | int * 10 + entry | int) }}
+actions: !input action

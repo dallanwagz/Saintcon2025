@@ -16,6 +16,7 @@ extern "C" {
     X(NONE,     "-",                LV_SYMBOL_DUMMY)    \
     X(MENU,     "Menu",             LV_SYMBOL_DUMMY)    \
     X(HID,      "HID Remote",       FA_DIALPAD)         \
+    X(HAMENU,   "HA Menu",          FA_BINARY)          \
     X(LEDS,     "LEDs",             FA_DICE_D20)        \
     X(NFC,      "NFC Tag",          FA_WIFI)            \
     X(SETTINGS, "Settings",         FA_WRENCH)          \

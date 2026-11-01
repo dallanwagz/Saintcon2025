@@ -23,7 +23,7 @@ static esp_hid_device_config_t hid_config = {
     .vendor_id         = 0x16C0, // generic test VID; replace if this ever ships
     .product_id        = 0x05DF,
     .version           = 0x0100,
-    .device_name       = "SC25 Wrench",
+    .device_name       = CONFIG_BADGE_NAME,
     .manufacturer_name = "SAINTCON",
     .serial_number     = "2025",
     .report_maps       = report_maps,
@@ -37,7 +37,8 @@ static uint16_t s_conn_handle         = BLE_HS_CONN_HANDLE_NONE; // the HID host
 static hid_state_cb_t s_state_cb      = NULL;
 static struct ble_hs_adv_fields s_adv = {0};
 static ble_uuid16_t s_hid_uuid        = BLE_UUID16_INIT(0x1812);
-static char s_name[32]                = "SC25 Wrench";
+static char s_name[32]                = CONFIG_BADGE_NAME;
+static uint8_t s_battery              = 100;
 
 void ble_store_config_init(void); // provided by the bt component when NimBLE is enabled
 
@@ -104,7 +105,11 @@ static int gap_event(struct ble_gap_event *event, void *arg) {
             ESP_LOGI(TAG, "disconnect reason=%d", event->disconnect.reason);
             s_conn_handle = BLE_HS_CONN_HANDLE_NONE;
             break; // esp_hidd reports this too; advertising restarts from the HIDD callback
-        case BLE_GAP_EVENT_ADV_COMPLETE: adv_start(); break;
+        case BLE_GAP_EVENT_ADV_COMPLETE: // a hid_broadcast() burst ended: HID advertising only matters while unconnected
+            if (s_conn_handle == BLE_HS_CONN_HANDLE_NONE) {
+                adv_start();
+            }
+            break;
         case BLE_GAP_EVENT_ENC_CHANGE: {
             struct ble_gap_conn_desc desc;
             bool bonded = ble_gap_conn_find(event->enc_change.conn_handle, &desc) == 0 && desc.sec_state.bonded;
@@ -280,9 +285,41 @@ void hid_mouse(uint8_t buttons, int8_t dx, int8_t dy, int8_t wheel) {
 }
 
 void hid_set_battery(uint8_t percent) {
+    s_battery = percent > 100 ? 100 : percent;
     if (s_dev && esp_hidd_dev_connected(s_dev)) {
         esp_hidd_dev_battery_set(s_dev, percent > 100 ? 100 : percent);
     }
+}
+
+uint8_t hid_battery_percent(void) {
+    return s_battery;
+}
+
+esp_err_t hid_broadcast(const uint8_t *adv, uint8_t len, uint32_t ms) {
+    if (s_suspended) {
+        return ESP_ERR_INVALID_STATE;
+    }
+    ble_gap_adv_stop(); // whatever is running: HID advertising (unconnected) or an earlier burst
+    int rc = ble_gap_adv_set_data(adv, len);
+    if (rc != 0) {
+        ESP_LOGE(TAG, "ble_gap_adv_set_data rc=%d", rc);
+        return ESP_FAIL;
+    }
+    struct ble_gap_adv_params params = {
+        .conn_mode = BLE_GAP_CONN_MODE_NON,
+        .disc_mode = BLE_GAP_DISC_MODE_NON,
+        .itvl_min  = BLE_GAP_ADV_ITVL_MS(20),
+        .itvl_max  = BLE_GAP_ADV_ITVL_MS(30),
+    };
+    rc = ble_gap_adv_start(BLE_OWN_ADDR_PUBLIC, NULL, ms, &params, gap_event, NULL);
+    if (rc != 0) {
+        ESP_LOGE(TAG, "broadcast ble_gap_adv_start rc=%d", rc);
+        if (s_conn_handle == BLE_HS_CONN_HANDLE_NONE) {
+            adv_start(); // give HID its advertising back
+        }
+        return ESP_FAIL;
+    }
+    return ESP_OK;
 }
 
 esp_err_t hid_forget_bonds(void) {

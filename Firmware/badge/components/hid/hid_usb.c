@@ -51,7 +51,7 @@ static char s_serial[13];
 static const char *s_strings[] = {
     (char[]){0x09, 0x04}, // 0: English (US)
     "Saintcon",           // 1: manufacturer
-    "SC25 Wrench",        // 2: product
+    CONFIG_BADGE_NAME,    // 2: product
     s_serial,             // 3: serial (base MAC)
     "SC25 Wrench joystick", // 4: HID interface
     "SC25 Wrench console",  // 5: CDC interface

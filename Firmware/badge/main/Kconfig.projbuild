@@ -8,6 +8,7 @@ menu "Badge Configuration"
     # Badge-specific component configuration menus
     rsource "../components/battery/Kconfig"
     rsource "../components/display/Kconfig"
+    rsource "../components/hid/Kconfig"
     rsource "../components/joystick/Kconfig"
     rsource "../components/minibadge/Kconfig"
     rsource "../components/nfc/Kconfig"

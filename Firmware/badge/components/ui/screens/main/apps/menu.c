@@ -13,6 +13,7 @@ static const char *TAG __attribute__((unused)) = "screens/main [apps/menu]";
 // List of apps in the menu
 content_app_t menu_apps[] = {
     APP_HID,
+    APP_HAMENU,
     APP_LEDS,
     APP_NFC,
     APP_SETTINGS,

@@ -63,6 +63,15 @@ esp_err_t hid_forget_host(int index);
 esp_err_t hid_forget_bonds(void);
 
 /**
+ * Broadcast a raw legacy advert (non-connectable, non-discoverable) for `ms`, then go back to normal.
+ * Works while a host is connected (a NONCONN advert needs no connection slot); while disconnected it
+ * borrows the radio from HID advertising, which resumes when the burst ends. Used for BTHome events.
+ */
+esp_err_t hid_broadcast(const uint8_t *adv, uint8_t len, uint32_t ms);
+/** Last battery percent handed to hid_set_battery() (100 until the first reading). */
+uint8_t hid_battery_percent(void);
+
+/**
  * USB transport (TinyUSB keyboard/mouse/consumer + a CDC console). Takes the USB port away from
  * USB-Serial/JTAG: logs move to the CDC port, and flashing needs tools/enter_bootloader.py (1200-baud
  * touch) or the centre button held at power-on. Turning it off again is a reboot.
@@ -85,6 +94,7 @@ void hid_usb_release_phy(void);
 #define HID_KEY_LEFT      0x50
 #define HID_KEY_DOWN      0x51
 #define HID_KEY_UP        0x52
+#define HID_KEY_F13       0x68 // F13..F24 are 0x68..0x73: keys no real keyboard sends, so hosts can bind them freely
 
 // Consumer page usages
 #define HID_CONSUMER_PLAY_PAUSE 0x00CD
@@ -96,6 +106,7 @@ void hid_usb_release_phy(void);
 
 #define HID_MOUSE_BUTTON_LEFT  0x01
 #define HID_MOUSE_BUTTON_RIGHT 0x02
+#define HID_MOUSE_BUTTON(n)    (1u << ((n) - 1)) // 1..8
 
 #ifdef __cplusplus
 }

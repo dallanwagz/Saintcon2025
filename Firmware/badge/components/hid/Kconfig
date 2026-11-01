@@ -1,0 +1,27 @@
+menu "HID remote"
+
+    config BADGE_NAME
+        string "Badge name (Bluetooth HID and USB device name)"
+        default "SC25 Wrench"
+        help
+            What phones and computers show when pairing. Give each badge its own name with a
+            per-badge defaults file, e.g. sdkconfig.<badge>.defaults (see REPURPOSE.md).
+
+    config BADGE_SHORT_NAME
+        string "Short name for BTHome adverts (max 7 characters)"
+        default "Wrench"
+        help
+            Home Assistant shows this when it discovers the badge's button broadcasts. The advert has
+            room for 7 characters next to the five buttons and the battery.
+
+    config BADGE_MENU
+        string "Home Assistant menu rows (semicolon separated, 19 characters each, 32 rows max)"
+        default "Lights on;Lights off;Strip|Off|Rainbow|Fire;Blinds up;Blinds down;Good night"
+        help
+            Rows of the HA Menu app. Picking row r broadcasts a BTHome dimmer event rotate_right with steps = r
+            (and the row text as sensor.<badge>_text, for the logbook). A row written as "Label|A|B|C" opens a
+            popup of entries instead; entry k of row r sends rotate_left with steps = r*10+k (rows 1-24, up to
+            9 entries). Automations key on those numbers (ha/wrench_menu_command.yaml), so append new rows and
+            entries at the end. Texts are cut to 19 characters.
+
+endmenu

@@ -27,7 +27,7 @@
 
 static const char *TAG = "main";
 
-#define HID_DEVICE_NAME "SC25 Wrench"
+#define HID_DEVICE_NAME CONFIG_BADGE_NAME // per-badge: menuconfig -> Badge Configuration -> HID remote
 
 #ifndef BOOT_PROGRESS_MAX_BRIGHTNESS
     #define BOOT_PROGRESS_MAX_BRIGHTNESS 40
@@ -364,6 +364,9 @@ void app_main(void) {
         set_screen(SCREEN_HWTEST);
     } else {
         set_screen(SCREEN_MAIN);
+        if (badge_config.hid_autostart) {
+            launch_app(APP_HID); // the HID app resumes the saved profile on its first build (Settings -> HID remote)
+        }
     }
 }
 

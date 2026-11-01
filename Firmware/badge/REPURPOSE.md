@@ -175,6 +175,61 @@ How to drive it: menu -> HID Remote -> pick a profile. The stick is then sent to
 center button 1.5 s to get the menu back. Profiles are in `components/hid/hid_profiles.c`
 (tables of joystick direction -> HID usage); the BLE plumbing is `components/hid/hid_ble.c`.
 
+Automation profiles (2026-10-31): `Macro Keys` taps F13-F17 (up, down, left, right, center) and
+`Phone Buttons` clicks mouse buttons 4-8. Neither does anything by itself; the host binds them: on the Mac,
+Karabiner `device_if` rules (badge vendor 0x16C0 product 0x05DF over BLE, 0x303A:0x4005 over USB) or
+Shortcuts -> Add Keyboard Shortcut; on the iPhone, Settings -> Accessibility -> Keyboards -> Full Keyboard
+Access -> Commands for the F-keys, or Accessibility -> Touch -> AssistiveTouch -> Pointer Devices ->
+the badge -> Customize Additional Buttons to run a Shortcut per button. The report map changed for this
+(keys up to 0x73, 8 mouse buttons), and bonded hosts cache it: forget "SC25 Wrench" on the phone/Mac and
+re-pair after flashing, or the old map stays in use.
+
+`Home Assistant` profile (2026-10-31): the stick sends nothing to the host; each press (or 0.5 s hold =
+long press, directions only) goes out as a one-second BTHome v2 burst (`components/hid/bthome.c`, service
+data UUID 0xFCD2, trigger-based, battery + five button objects) on a non-connectable advert, which the S3
+runs even while the iPhone link is up (`hid_broadcast()` in `hid_ble.c`; while unconnected it borrows the
+slot from HID advertising, which resumes on ADV_COMPLETE). HA's Bluetooth integration or an ESPHome
+Bluetooth proxy discovers a device named "Wrench" with button_1..5 event entities and a battery sensor.
+Unencrypted: anyone in range can spoof the events; BTHome AES-CCM encryption is the next step if that matters.
+Tested 2026-10-31: all five presses decoded on a Mac bleak scan while the iPhone stayed connected, and HA
+discovered it as "SC25 Wrench" (BTHome, by the badge's BLE address) with Button 1-5 event entities
+showing press / long press and a 99 % battery sensor; the two disabled entities are the usual BTHome signal diagnostics.
+
+Resume at boot (2026-10-31): Settings -> HID remote -> "Resume last profile at boot" (config v5 `hid_autostart`).
+On, the badge opens HID Remote right after the splash and starts the saved profile, so a blinds remote in the
+Home Assistant profile survives a power cycle without any menu taps; hold centre 1 s to get the menu back.
+
+HA Menu (command bus, tested OK 2026-10-31): the stick profile stops at five buttons, so the "HA Menu" app is a list of named
+commands instead. Picking a row broadcasts one BTHome advert carrying a dimmer event (rotate_right, steps =
+row number) and a text object with the row text; Home Assistant fires `event.<badge>_dimmer` and sets
+`sensor.<badge>_text` from the same packet. One blueprint, `ha/wrench_menu_command.yaml`, turns each row
+into an automation: trigger = the dimmer event, condition = its `steps` attribute equals the row number,
+action = anything. The condition cannot use the text sensor: HA starts the automation eagerly inside the
+callback that fires the event, before the sensors from the same advert are written, so the condition saw the
+previous row's text (seen 2026-10-31: one row fired the previous row's action). The screen shows each row's
+number for that reason; the text is for the logbook. Rows live in `CONFIG_BADGE_MENU` (menuconfig -> HID
+remote, semicolon separated, 19 characters each because the advert has 31 bytes and the packet id + dimmer +
+text headers take 12) so each badge gets its own list through its defaults file; append new rows at the end
+so existing numbers keep their meaning. A row written as `Strip|Off|Rainbow|Fire 2012` is a submenu:
+picking it opens a popup of its entries on the badge and entry k of row r sends rotate_left with steps =
+r*10+k (rows 1-24, up to 9 entries each), so one HA automation per submenu can switch on `steps % 10`
+(a WLED strip's look picker works this way: entry 1 = off, entries 2-9 = the strip's saved WLED
+presets via the strip's `select.<strip>_preset`; raw effects were a dead end because the segment palette was
+"* Color 1" = white, so Rainbow/Colorloop rendered as plain white). A brightness "slider" is a popup of levels
+(row 7: 10/25/50/75/100 %) because one advert carries a single data byte, `steps`, and the row number already
+lives there; a continuous slider needs a second dimmer object in the advert (bthome-ble indexes them as
+dimmer_1/dimmer_2, trigger on the second, read the first) and is the next step if the levels feel coarse. The badge never learns what a row does: adding a capability is one
+row in Kconfig plus one blueprint automation, no Wi-Fi. The link is one way (BTHome is broadcast only), so
+the screen confirms "Sent", not "done". Later: a slider row that sends the stick position as `steps`
+(rotate_left = negative) for brightness/volume, and rows stored in NVS or on the NFC tag so a phone can
+edit them without a flash.
+
+Several badges: the name is `CONFIG_BADGE_NAME` (Bluetooth HID + USB) and `CONFIG_BADGE_SHORT_NAME`
+(BTHome, 7 chars max) under menuconfig -> Badge Configuration -> HID remote. A second badge gets its own
+defaults file and build dir so the first badge's `sdkconfig`/`build` stay untouched. Copy `sdkconfig.example.defaults` to `sdkconfig.<badge>.defaults`, set its name and rows, then:
+`idf.py -B build-<badge> -DSDKCONFIG=sdkconfig.<badge> -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.<badge>.defaults" -p <port> build flash`
+(per-badge defaults, `sdkconfig.<badge>` and `build-<badge>/` are all git-ignored, so household menus stay out of the repo).
+
 USB HID at a glance: Settings -> USB -> "Turn USB keyboard on" starts TinyUSB right away and remembers it;
 the badge enumerates as a keyboard/mouse/consumer device plus a CDC serial port, logs move to that CDC port,
 and reports go to USB whenever a host has the badge mounted (BLE otherwise). The S3 has one internal USB PHY,

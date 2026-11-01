@@ -8,6 +8,7 @@
 #include "content.h"
 
 // Content area apps
+#include "apps/hamenu.h"
 #include "apps/hid.h"
 #include "apps/leds.h"
 #include "apps/menu.h"
@@ -230,6 +231,9 @@ void update_content_area() {
             break;
         case APP_HID: //
             hid_app_create(content_area);
+            break;
+        case APP_HAMENU: //
+            hamenu_app_create(content_area);
             break;
         case APP_LEDS: //
             leds_app_create(content_area);

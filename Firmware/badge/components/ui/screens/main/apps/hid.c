@@ -20,6 +20,7 @@ static lv_obj_t *profile_list = NULL;
 static lv_obj_t *active_panel = NULL;
 static lv_obj_t *focus_sink   = NULL;  // invisible focus target between the home button and the list
 static bool s_focus_sink_next = false; // focus the sink on the next build (set when a profile exits)
+static bool s_autostart_pending = true; // boot-time resume (badge_config.hid_autostart) happens once, on the first build
 
 static const char *state_text(void) {
     switch (hid_get_state()) {
@@ -83,8 +84,7 @@ static void on_hid_exit(void) {
     ui_request_rerender();
 }
 
-static void profile_clicked(lv_event_t *e) {
-    hid_profile_t p = (hid_profile_t)(uintptr_t)lv_event_get_user_data(e);
+static void start_profile(hid_profile_t p) {
     hid_profile_set(p);
     badge_config.hid_profile = (uint8_t)p;
     save_badge_config();
@@ -93,6 +93,10 @@ static void profile_clicked(lv_event_t *e) {
     input_set_passthrough(true);
     hid_profile_set_active(true);
     show_active_panel();
+}
+
+static void profile_clicked(lv_event_t *e) {
+    start_profile((hid_profile_t)(uintptr_t)lv_event_get_user_data(e));
 }
 
 static void hid_nav_setup(lv_obj_t *content_area, nav_ctx_t *nav_ctx, void *user_data) {
@@ -164,6 +168,7 @@ void hid_app_create(lv_obj_t *parent) {
     for (int i = 0; i < HID_PROFILE_COUNT; i++) {
         lv_obj_t *btn = lv_list_add_button(profile_list, NULL, hid_profile_names[i]);
         lv_obj_set_style_bg_opa(btn, LV_OPA_TRANSP, LV_PART_MAIN);
+        lv_obj_add_flag(btn, LV_OBJ_FLAG_SCROLL_ON_FOCUS); // six rows no longer fit on screen
         lv_obj_add_event_cb(btn, profile_clicked, LV_EVENT_CLICKED, (void *)(uintptr_t)i);
     }
 
@@ -179,5 +184,8 @@ void hid_app_create(lv_obj_t *parent) {
     // Rebuilt (e.g. on a connection change) while a profile is running: keep the panel up
     if (hid_profile_is_active()) {
         show_active_panel();
+    } else if (badge_config.hid_autostart && s_autostart_pending) {
+        start_profile((hid_profile_t)badge_config.hid_profile); // resume where the badge was before the power cycle
     }
+    s_autostart_pending = false;
 }

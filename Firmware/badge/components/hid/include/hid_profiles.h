@@ -17,6 +17,9 @@ typedef enum {
     HID_PROFILE_PRESENTER,
     HID_PROFILE_ARROWS,
     HID_PROFILE_MOUSE,
+    HID_PROFILE_MACRO,   // F13-F17: bind them on the host (Karabiner, Shortcuts, iOS Full Keyboard Access)
+    HID_PROFILE_BUTTONS, // mouse buttons 4-8: iOS AssistiveTouch runs a Shortcut per button
+    HID_PROFILE_HOME,    // BTHome events straight to Home Assistant, no host involved
     HID_PROFILE_COUNT,
 } hid_profile_t;
 

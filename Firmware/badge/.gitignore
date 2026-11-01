@@ -1,6 +1,10 @@
 build/
+build-*/
 sdkconfig
 sdkconfig.old
+sdkconfig.*
+!sdkconfig.defaults
+!sdkconfig.example.defaults
 managed_components/
 
 debug.log

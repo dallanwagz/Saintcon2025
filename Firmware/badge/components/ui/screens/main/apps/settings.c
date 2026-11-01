@@ -297,6 +297,32 @@ static void usb_toggle_cb(lv_event_t *e) {
     }
 }
 
+static void autostart_toggle_cb(lv_event_t *e) {
+    (void)e;
+    badge_config.hid_autostart = !badge_config.hid_autostart;
+    save_badge_config();
+    bt_rebuild();
+}
+
+static void create_hid_section(lv_obj_t *list) {
+    lv_obj_t *row = create_setting_row(list, "HID remote");
+    lv_obj_set_style_pad_row(row, 4, LV_PART_MAIN);
+    lv_obj_t *status = lv_label_create(row);
+    lv_obj_set_width(status, lv_pct(100));
+    lv_label_set_long_mode(status, LV_LABEL_LONG_WRAP);
+    lv_label_set_text(status, badge_config.hid_autostart ? "Resume last profile at boot: ON" : "Resume last profile at boot: OFF");
+    lv_obj_set_style_text_color(status, lv_color_hex(badge_config.hid_autostart ? GREEN_MAIN : GRAY_SHADE_1), LV_PART_MAIN);
+    lv_obj_set_style_text_font(status, &lv_font_montserrat_14, LV_PART_MAIN);
+    create_action_button(row, badge_config.hid_autostart ? "Turn off" : "Turn on", autostart_toggle_cb, 0, false);
+    lv_obj_t *hint = lv_label_create(row);
+    lv_obj_set_width(hint, lv_pct(100));
+    lv_label_set_long_mode(hint, LV_LABEL_LONG_WRAP);
+    lv_label_set_text(hint, "On: after a power cycle the badge opens HID Remote and resumes the profile it was in. "
+                            "Hold centre 1 s to get the menu back.");
+    lv_obj_set_style_text_color(hint, lv_color_hex(GRAY_SHADE_2), LV_PART_MAIN);
+    lv_obj_set_style_text_font(hint, &lv_font_montserrat_12, LV_PART_MAIN);
+}
+
 static void create_usb_section(lv_obj_t *list) {
     lv_obj_t *row = create_setting_row(list, "USB");
     lv_obj_set_style_pad_row(row, 4, LV_PART_MAIN);
@@ -518,6 +544,7 @@ void settings_app_create(lv_obj_t *parent) {
 
     // USB keyboard + Bluetooth host link / bonds (both register their buttons in bt_buttons[])
     bt_button_count = 0;
+    create_hid_section(settings_list);
     create_usb_section(settings_list);
     create_bluetooth_section(settings_list);
 
