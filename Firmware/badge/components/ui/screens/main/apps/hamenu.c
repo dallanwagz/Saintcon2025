@@ -81,7 +81,9 @@ static void parse_rows(void) {
 }
 
 static void sent(const char *text) {
-    lv_label_set_text_fmt(s_status, "Sent: %s", text);
+    char buf[BTHOME_CMD_MAX + 8];
+    snprintf(buf, sizeof(buf), "Sent: %s", text);
+    lv_label_set_text(s_status, buf); // not set_text_fmt: it corrupts LONG_MODE_DOTS labels (see leds.c set_fmt)
     lv_obj_set_style_text_color(s_status, lv_color_hex(GREEN_MAIN), LV_PART_MAIN);
     lv_obj_fade_in(s_status, 400, 0); // visible blink even when the same row is sent twice
 }

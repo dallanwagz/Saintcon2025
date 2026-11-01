@@ -98,6 +98,14 @@ gives an empty table). Things that do not carry over:
 
 To undo: `python3 tools/wled_port/wledport.py remove "<name>"`.
 
+## Showcase (what the LEDs app browses)
+
+The LEDs app only lists effects that visibly animate on the badge's 20 LEDs, each with a setup known to work, so
+stepping to a new effect never needs tuning. `wledport.py showcase` renders every effect on the host with its WLED
+defaults, scores brightness and motion, tries a few fallback palettes/colours for the dull ones, drops what never
+comes alive and writes `components/wled_mirror/include/wled_showcase_gen.h`. Re-run it after `import` or `add`
+(`-v` prints every score, `--dry-run` writes nothing), then `idf.py build flash`.
+
 ## What if fx ids changed
 
 The badge stores looks by fx id: the generated preset table, and the look saved from the LEDs app.

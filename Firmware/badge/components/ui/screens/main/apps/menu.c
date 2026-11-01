@@ -12,15 +12,15 @@ static const char *TAG __attribute__((unused)) = "screens/main [apps/menu]";
 
 // List of apps in the menu
 content_app_t menu_apps[] = {
+    APP_LEDS,
     APP_HID,
     APP_HAMENU,
-    APP_LEDS,
     APP_NFC,
     APP_SETTINGS,
     APP_HWTEST,
 };
 
-#define MENU_DEFAULT_ITEM APP_HID
+#define MENU_DEFAULT_ITEM APP_LEDS
 
 // Forward declarations
 static void menu_event_handler(lv_event_t *e);
