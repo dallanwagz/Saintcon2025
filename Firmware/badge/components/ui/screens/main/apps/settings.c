@@ -9,6 +9,7 @@
 #include "display.h"
 #include "led.h"
 #include "nav.h"
+#include "text_input.h"
 #include "theme.h"
 #include "ui.h"
 #include "version.h"
@@ -29,6 +30,7 @@ static lv_obj_t *timeout_slider    = NULL;
 static lv_obj_t *timeout_label     = NULL;
 static lv_obj_t *led_slider        = NULL;
 static lv_obj_t *led_label         = NULL;
+static lv_obj_t *name_input        = NULL;
 
 // Bluetooth section: manage the HID host link and its bonds from the badge side
 #define BT_MAX_BUTTONS 12
@@ -304,6 +306,31 @@ static void autostart_toggle_cb(lv_event_t *e) {
     bt_rebuild();
 }
 
+// Owner's name: typed with the stick, saved to NVS, applied right away (status bar, Bluetooth/USB name, BTHome)
+static void name_changed_cb(const char *text, void *user_data) {
+    (void)user_data;
+    snprintf(badge_config.name, sizeof(badge_config.name), "%s", text);
+    for (int i = strlen(badge_config.name) - 1; i >= 0 && badge_config.name[i] == ' '; i--) {
+        badge_config.name[i] = '\0'; // the roller has a space; trailing ones are never wanted
+    }
+    save_badge_config();
+    hid_set_name(badge_config.name);
+}
+
+static void create_name_section(lv_obj_t *list) {
+    lv_obj_t *row = create_setting_row(list, "Name");
+    // ponytail: 7 cells of 24 px + gaps fit the 192 px the row has; the widget scrolls if a font ever changes that
+    text_input_config_t cfg = {.charset = TI_ALPHA_UPPER TI_ALPHA_LOWER TI_NUMERIC " ", .max_len = BADGE_NAME_LEN, .cell_w = 24};
+    name_input              = text_input_create(row, &cfg, badge_config.name, name_changed_cb, NULL);
+    lv_obj_t *hint          = lv_label_create(row);
+    lv_obj_set_width(hint, lv_pct(100));
+    lv_label_set_long_mode(hint, LV_LABEL_LONG_WRAP);
+    lv_label_set_text(hint, "Shown top left and as \"<name> Wrench\" when pairing. Centre: edit the letter, up/down: pick, "
+                            "right: next letter, left: delete, centre: done.");
+    lv_obj_set_style_text_color(hint, lv_color_hex(GRAY_SHADE_2), LV_PART_MAIN);
+    lv_obj_set_style_text_font(hint, &lv_font_montserrat_12, LV_PART_MAIN);
+}
+
 static void create_hid_section(lv_obj_t *list) {
     lv_obj_t *row = create_setting_row(list, "HID remote");
     lv_obj_set_style_pad_row(row, 4, LV_PART_MAIN);
@@ -405,6 +432,10 @@ static void settings_app_destroy(lv_event_t *e) {
         }
     }
     brightness_slider = timeout_slider = led_slider = NULL;
+    if (name_input && lv_obj_is_valid(name_input)) {
+        text_input_destroy(name_input); // frees the widget's heap state; the parent's delete would only take the objects
+    }
+    name_input = NULL;
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -512,6 +543,8 @@ void settings_app_create(lv_obj_t *parent) {
     lv_obj_set_style_pad_row(settings_list, 8, LV_PART_MAIN);
     lv_obj_set_scrollbar_mode(settings_list, LV_SCROLLBAR_MODE_AUTO);
 
+    create_name_section(settings_list);
+
     // Screen brightness
     lv_obj_t *brightness_row = create_setting_row(settings_list, "Brightness");
     int32_t current_percent  = brightness_to_percent(badge_config.screen_brightness);
@@ -562,6 +595,7 @@ static void settings_nav_setup(lv_obj_t *content_area, nav_ctx_t *nav_ctx, void 
     (void)user_data;
 
     settings_nav_ctx = nav_ctx;
+    text_input_setup_nav(name_input, nav_ctx);
     nav_register(nav_ctx, brightness_slider);
     nav_register(nav_ctx, timeout_slider);
     nav_register(nav_ctx, led_slider);

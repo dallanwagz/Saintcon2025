@@ -10,6 +10,7 @@
 #include "nimble/nimble_port_freertos.h"
 #include "services/gap/ble_svc_gap.h"
 
+#include "cts.h"
 #include "hid.h"
 #include "hid_internal.h"
 
@@ -23,7 +24,7 @@ static esp_hid_device_config_t hid_config = {
     .vendor_id         = 0x16C0, // generic test VID; replace if this ever ships
     .product_id        = 0x05DF,
     .version           = 0x0100,
-    .device_name       = CONFIG_BADGE_NAME,
+    .device_name       = NULL, // s_name, set in hid_init
     .manufacturer_name = "SAINTCON",
     .serial_number     = "2025",
     .report_maps       = report_maps,
@@ -37,7 +38,8 @@ static uint16_t s_conn_handle         = BLE_HS_CONN_HANDLE_NONE; // the HID host
 static hid_state_cb_t s_state_cb      = NULL;
 static struct ble_hs_adv_fields s_adv = {0};
 static ble_uuid16_t s_hid_uuid        = BLE_UUID16_INIT(0x1812);
-static char s_name[32]                = CONFIG_BADGE_NAME;
+static char s_name[32]                = "SC25 Wrench"; // "<owner> Wrench" once a name is typed in Settings
+static char s_short[8]                = "SC25";        // the owner's name alone (BTHome local name, 7 chars max)
 static uint8_t s_battery              = 100;
 
 void ble_store_config_init(void); // provided by the bt component when NimBLE is enabled
@@ -115,6 +117,9 @@ static int gap_event(struct ble_gap_event *event, void *arg) {
             bool bonded = ble_gap_conn_find(event->enc_change.conn_handle, &desc) == 0 && desc.sec_state.bonded;
             ESP_LOGI(TAG, "encryption change status=%d encrypted=%d bonded=%d", event->enc_change.status,
                      event->enc_change.status == 0, bonded);
+            if (event->enc_change.status == 0) {
+                cts_sync(event->enc_change.conn_handle); // an iPhone hands out its clock once the link is encrypted
+            }
             break;
         }
         case BLE_GAP_EVENT_SUBSCRIBE:
@@ -182,13 +187,37 @@ static void host_task(void *param) {
     nimble_port_freertos_deinit();
 }
 
-esp_err_t hid_init(const char *device_name) {
+void hid_set_name(const char *owner) {
+    if (owner && owner[0]) {
+        snprintf(s_short, sizeof(s_short), "%s", owner);
+        snprintf(s_name, sizeof(s_name), "%s Wrench", s_short);
+    } else {
+        snprintf(s_short, sizeof(s_short), "SC25");
+        snprintf(s_name, sizeof(s_name), "SC25 Wrench");
+    }
+    s_adv.name_len = strlen(s_name);
+    if (s_dev) {
+        ble_svc_gap_device_name_set(s_name);
+        if (s_state == HID_STATE_ADVERTISING) {
+            ble_gap_adv_stop(); // re-advertise with the new name; a connected host keeps the one it cached
+            adv_start();
+        }
+    }
+}
+
+const char *hid_device_name(void) {
+    return s_name;
+}
+
+const char *hid_short_name(void) {
+    return s_short;
+}
+
+esp_err_t hid_init(const char *owner) {
     if (s_dev) {
         return ESP_OK;
     }
-    if (device_name) {
-        snprintf(s_name, sizeof(s_name), "%s", device_name);
-    }
+    hid_set_name(owner);
     hid_config.device_name = s_name;
 
     esp_bt_controller_config_t bt_cfg = BT_CONTROLLER_INIT_CONFIG_DEFAULT();

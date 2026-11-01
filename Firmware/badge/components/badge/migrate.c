@@ -67,6 +67,22 @@ void migrate_badge_config(nvs_handle_t nvs_handle, uint32_t stored_version) {
         } else {
             ESP_LOGW(TAG, "Could not read v4 config, using defaults");
         }
+    } else if (stored_version == 5) {
+        badge_config_v5_t v5;
+        size_t len = sizeof(v5);
+        if (nvs_get_blob(nvs_handle, "badge_config", &v5, &len) == ESP_OK && len == sizeof(v5)) {
+            cfg.hw_pass           = v5.hw_pass;
+            cfg.screen_brightness = v5.screen_brightness;
+            cfg.screen_timeout    = v5.screen_timeout;
+            cfg.led_brightness    = v5.led_brightness;
+            cfg.led_pattern       = v5.led_pattern;
+            cfg.hid_profile       = v5.hid_profile;
+            cfg.usb_hid           = v5.usb_hid;
+            cfg.hid_autostart     = v5.hid_autostart;
+            ESP_LOGI(TAG, "Migrated config v5 -> v%d", BADGE_CONFIG_VERSION);
+        } else {
+            ESP_LOGW(TAG, "Could not read v5 config, using defaults");
+        }
     } else {
         ESP_LOGW(TAG, "Unknown stored config version %lu, using defaults", stored_version);
     }

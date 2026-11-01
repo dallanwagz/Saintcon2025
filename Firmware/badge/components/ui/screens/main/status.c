@@ -3,6 +3,7 @@
 #include "esp_timer.h"
 #include "lvgl.h"
 
+#include "badge.h"
 #include "theme.h"
 #include "wifi_manager.h"
 #include "battery.h"
@@ -48,12 +49,18 @@ static const char *get_formatted_time() {
     // Times before 2000-01-01 00:00:00 UTC (946684800) are obviously invalid
     // so we'll just return a placeholder since SNTP might not have run yet
     if (now < 946684800) {
-        return "--:-- --";
+        return NULL; // nothing sets the clock any more: SNTP left with WiFi and the S3's RTC has no backup battery
     }
 
     localtime_r(&now, &timeinfo);
     strftime(time_buffer, sizeof(time_buffer), "%I:%M %p", &timeinfo);
     return time_buffer;
+}
+
+// Owner's name (Settings -> Name) first so two badges can be told apart; the time follows once the clock is set
+static void refresh_clock_label(void) {
+    const char *t = get_formatted_time();
+    lv_label_set_text_fmt(clock_label, "%s%s%s", badge_config.name, badge_config.name[0] && t ? "  " : "", t ? t : "");
 }
 
 // ponytail: polled from the 1 s clock tick instead of a new UI event; an indicator can lag a second
@@ -75,7 +82,7 @@ static void refresh_hid_label(void) {
 }
 
 static void clock_timer_cb(lv_timer_t *timer) {
-    lv_label_set_text(clock_label, get_formatted_time());
+    refresh_clock_label();
     refresh_hid_label();
 }
 
@@ -104,7 +111,7 @@ lv_obj_t *create_status_bar(lv_obj_t *parent) {
 
     // Time label
     clock_label = lv_label_create(status_bar);
-    lv_label_set_text(clock_label, get_formatted_time());
+    refresh_clock_label();
     lv_obj_set_style_text_color(clock_label, lv_color_hex(WHITE), LV_PART_MAIN);
     lv_obj_set_style_text_font(clock_label, &lv_font_montserrat_16, LV_PART_MAIN);
     lv_obj_align(clock_label, LV_ALIGN_LEFT_MID, 0, 0);

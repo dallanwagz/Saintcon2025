@@ -1,19 +1,5 @@
 menu "HID remote"
 
-    config BADGE_NAME
-        string "Badge name (Bluetooth HID and USB device name)"
-        default "SC25 Wrench"
-        help
-            What phones and computers show when pairing. Give each badge its own name with a
-            per-badge defaults file, e.g. sdkconfig.<badge>.defaults (see REPURPOSE.md).
-
-    config BADGE_SHORT_NAME
-        string "Short name for BTHome adverts (max 7 characters)"
-        default "Wrench"
-        help
-            Home Assistant shows this when it discovers the badge's button broadcasts. The advert has
-            room for 7 characters next to the five buttons and the battery.
-
     config BADGE_MENU
         string "Home Assistant menu rows (semicolon separated, 19 characters each, 32 rows max)"
         default "Lights on;Lights off;Strip|Off|Rainbow|Fire;Blinds up;Blinds down;Good night"

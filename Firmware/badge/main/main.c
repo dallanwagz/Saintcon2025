@@ -27,7 +27,6 @@
 
 static const char *TAG = "main";
 
-#define HID_DEVICE_NAME CONFIG_BADGE_NAME // per-badge: menuconfig -> Badge Configuration -> HID remote
 
 #ifndef BOOT_PROGRESS_MAX_BRIGHTNESS
     #define BOOT_PROGRESS_MAX_BRIGHTNESS 40
@@ -318,7 +317,7 @@ void app_main(void) {
     hid_set_state_callback(hid_state_changed);
     hid_profiles_init();
     hid_profile_set((hid_profile_t)badge_config.hid_profile);
-    err = hid_init(HID_DEVICE_NAME);
+    err = hid_init(badge_config.name); // "<owner> Wrench"; the owner types the name in Settings
     if (err != ESP_OK) {
         ESP_LOGE(TAG, "Failed to start BLE HID: %s", esp_err_to_name(err));
     }

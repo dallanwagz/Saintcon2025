@@ -20,6 +20,7 @@ typedef struct {
     bool mask;
     bool carry_repeat;  // if true, keep current roller selection when advancing to next cell in edit mode
     bool start_editing; // if true, enter edit mode immediately (roller visible on first render)
+    uint8_t cell_w;     // cell width in px (0 = 30)
 } text_input_config_t;
 
 typedef void (*text_input_cb_t)(const char *text, void *user_data);

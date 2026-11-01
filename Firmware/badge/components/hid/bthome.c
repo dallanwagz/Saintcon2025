@@ -23,10 +23,10 @@ size_t bthome_pack_buttons(uint8_t out[31], uint8_t packet_id, uint8_t battery, 
         out[n++] = 0x3A; out[n++] = events[i];
     }
     out[sd] = (uint8_t)(n - sd - 1);
-    static const char name[] = CONFIG_BADGE_SHORT_NAME;     // shortened local name: what HA shows
-    _Static_assert(sizeof(name) - 1 <= 7, "BADGE_SHORT_NAME must be 7 characters or fewer to fit the advert");
-    out[n++] = (uint8_t)(1 + sizeof(name) - 1); out[n++] = 0x08;
-    memcpy(out + n, name, sizeof(name) - 1); n += sizeof(name) - 1;
+    const char *name = hid_short_name();                    // shortened local name: what HA shows (7 chars max)
+    size_t nl        = strnlen(name, 7);
+    out[n++] = (uint8_t)(1 + nl); out[n++] = 0x08;
+    memcpy(out + n, name, nl); n += nl;
     assert(n <= 31);
     return n;
 }

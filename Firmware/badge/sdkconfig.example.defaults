@@ -1,6 +1,4 @@
 # Per-badge HA menu. Copy to sdkconfig.<badge>.defaults (git-ignored), edit the rows, then build with its own dir:
 #   idf.py -B build-<badge> -DSDKCONFIG=sdkconfig.<badge> -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.<badge>.defaults" -p <port> build flash
-CONFIG_BADGE_NAME="Second Wrench"
-CONFIG_BADGE_SHORT_NAME="Second"
-CONFIG_BT_NIMBLE_SVC_GAP_DEVICE_NAME="Second Wrench"
+# The owner's name is not a build setting: type it on the badge (Settings -> Name).
 CONFIG_BADGE_MENU="Lights on;Lights off;Blinds up;Blinds down;Good night"

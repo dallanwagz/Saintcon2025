@@ -411,7 +411,7 @@ lv_obj_t *text_input_create(lv_obj_t *parent, text_input_config_t *config, const
     ti->cells = malloc(sizeof(lv_obj_t *) * config->max_len);
     for (uint8_t i = 0; i < config->max_len; i++) {
         lv_obj_t *cell = lv_obj_create(ti->container);
-        lv_obj_set_size(cell, 30, 35);
+        lv_obj_set_size(cell, config->cell_w ? config->cell_w : 30, 35);
         lv_obj_set_style_bg_color(cell, lv_color_hex(GRAY_SHADE_6), LV_PART_MAIN);
         lv_obj_set_style_bg_color(cell, lv_color_hex(BLUE_MAIN), LV_PART_MAIN | LV_STATE_FOCUS_KEY);
         lv_obj_set_style_bg_color(cell, lv_color_hex(YELLOW_MAIN), LV_PART_MAIN | LV_STATE_EDITED);

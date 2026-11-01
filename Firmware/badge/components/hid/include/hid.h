@@ -23,7 +23,12 @@ typedef enum {
 
 typedef void (*hid_state_cb_t)(hid_state_t state);
 
-esp_err_t hid_init(const char *device_name);
+/** Start the BLE HID device as "<owner> Wrench" (or "SC25 Wrench" when owner is empty/NULL). */
+esp_err_t hid_init(const char *owner);
+/** Rename at runtime (Settings): "<owner> Wrench" over Bluetooth/USB, owner alone for BTHome. */
+void hid_set_name(const char *owner);
+const char *hid_device_name(void); // "<owner> Wrench"
+const char *hid_short_name(void);  // owner, 7 chars max ("SC25" if none)
 hid_state_t hid_get_state(void);
 void hid_set_state_callback(hid_state_cb_t cb); // called from the BLE host task
 

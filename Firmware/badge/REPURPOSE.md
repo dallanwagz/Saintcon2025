@@ -224,9 +224,22 @@ the screen confirms "Sent", not "done". Later: a slider row that sends the stick
 (rotate_left = negative) for brightness/volume, and rows stored in NVS or on the NFC tag so a phone can
 edit them without a flash.
 
-Several badges: the name is `CONFIG_BADGE_NAME` (Bluetooth HID + USB) and `CONFIG_BADGE_SHORT_NAME`
-(BTHome, 7 chars max) under menuconfig -> Badge Configuration -> HID remote. A second badge gets its own
-defaults file and build dir so the first badge's `sdkconfig`/`build` stay untouched. Copy `sdkconfig.example.defaults` to `sdkconfig.<badge>.defaults`, set its name and rows, then:
+Status bar and clock (2026-10-31): the top-left slot shows the owner's name (Settings -> Name) so
+two badges can be told apart, followed by the time once the clock is set. Nothing set it after the game code
+went: SNTP left with WiFi, and the clock cannot survive a power-off because the badge runs on 2xAA through
+SW1 (a slide switch that cuts everything) with no RTC backup cell, so "--:-- --" was permanent. The badge now
+reads the host's Current Time Service (`components/hid/cts.c`, GATT 0x1805/0x2A2B) on every encrypted
+connection: iPhones offer it to a bonded accessory, so the clock is right whenever a phone is connected;
+Macs do not offer it, and a badge that is never paired with a phone has no clock (it shows only the name).
+
+Several badges: the owner's name lives in NVS, not in the build (config v6 `name`, 7 chars). It is typed on
+the badge in Settings -> Name with the game's old text-entry widget (`widgets/text_input.c`: a row of letter
+cells; centre opens a character roller over the cell, up/down pick, right commits and moves on, left deletes,
+centre commits and closes) and applies at once: status bar, Bluetooth/USB device name "<name> Wrench"
+(`hid_set_name()` restarts advertising; a host that is already connected keeps the name it cached until it
+reconnects), and the BTHome local name (Home Assistant keeps the device name it learned first; rename it
+there). Only the HA menu is still per-badge: a second badge gets its own defaults file and build dir so the
+first badge's `sdkconfig`/`build` stay untouched. Copy `sdkconfig.example.defaults` to `sdkconfig.<badge>.defaults`, set its rows, then:
 `idf.py -B build-<badge> -DSDKCONFIG=sdkconfig.<badge> -DSDKCONFIG_DEFAULTS="sdkconfig.defaults;sdkconfig.<badge>.defaults" -p <port> build flash`
 (per-badge defaults, `sdkconfig.<badge>` and `build-<badge>/` are all git-ignored, so household menus stay out of the repo).
 

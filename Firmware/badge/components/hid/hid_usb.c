@@ -48,10 +48,11 @@ static const uint8_t s_config_desc[] = {
 };
 
 static char s_serial[13];
+static char s_product[32];
 static const char *s_strings[] = {
     (char[]){0x09, 0x04}, // 0: English (US)
     "Saintcon",           // 1: manufacturer
-    CONFIG_BADGE_NAME,    // 2: product
+    s_product,            // 2: product ("<owner> Wrench")
     s_serial,             // 3: serial (base MAC)
     "SC25 Wrench joystick", // 4: HID interface
     "SC25 Wrench console",  // 5: CDC interface
@@ -125,6 +126,7 @@ esp_err_t hid_usb_start(void) {
     uint8_t mac[6] = {0};
     esp_read_mac(mac, ESP_MAC_BASE);
     snprintf(s_serial, sizeof(s_serial), "%02X%02X%02X%02X%02X%02X", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    snprintf(s_product, sizeof(s_product), "%s", hid_device_name());
 
     const tinyusb_config_t cfg = {
         .device_descriptor        = NULL, // Kconfig default: Espressif VID, PID from the enabled classes
