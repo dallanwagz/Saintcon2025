@@ -1,0 +1,13 @@
+{
+  "source": {"host": "<strip-ip>", "wled": "16.0.1", "leds": 120, "fps": 42, "snapshot": "2026-01-01T00:00:00Z"},
+  "entries": [
+    {"menu": "Living room/Aurora", "action": "preset", "params": {"fx": 38, "pal": 55, "sx": 10, "ix": 80, "c1": 128, "c2": 128, "c3": 16, "o1": false, "o2": false, "o3": false, "col": [[255, 255, 255], [0, 0, 0], [0, 0, 0]], "vlen": 120}},
+    {"menu": "Living room/Rainbow", "action": "preset", "params": {"fx": 9, "pal": 0, "sx": 128, "ix": 128, "c1": 128, "c2": 128, "c3": 16, "o1": false, "o2": false, "o3": false, "col": [[255, 160, 0], [0, 0, 0], [0, 0, 0]], "vlen": 120}},
+    {"menu": "Living room/Toggle", "action": "toggle"},
+    {"menu": "Living room/Off", "action": "off"},
+    {"menu": "Living room/On", "action": "on"},
+    {"menu": "Living room/White 3000K", "action": "preset", "params": {"fx": 0, "pal": 0, "sx": 128, "ix": 128, "c1": 128, "c2": 128, "c3": 16, "o1": false, "o2": false, "o3": false, "col": [[255, 180, 107], [0, 0, 0], [0, 0, 0]], "vlen": 0}, "manual": true},
+    {"menu": "Brightness/50%", "action": "bri", "value": 50},
+    {"menu": "Good night", "action": "off", "manual": true}
+  ]
+}

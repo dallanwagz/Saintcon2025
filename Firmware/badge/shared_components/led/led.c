@@ -66,7 +66,7 @@ void led_gamma_apply_rgb(uint8_t *r, uint8_t *g, uint8_t *b) {
 // -------------------------------------------------------------------------------------------------
 
 #define LED_MAX_LAYERS        10
-#define LED_RENDER_TASK_STACK 3072
+#define LED_RENDER_TASK_STACK 8192 // the wled_fx wallpaper (WLED effects) renders in this task
 #define LED_RENDER_TASK_PRIO  4
 #define LED_FRAME_INTERVAL_MS 40 // 25 FPS default
 

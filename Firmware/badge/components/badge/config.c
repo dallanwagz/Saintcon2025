@@ -39,8 +39,14 @@ esp_err_t load_badge_config() {
             migrate_badge_config(nvs_handle, stored_version);
         } else {
             size_t required_size = sizeof(badge_config_t);
+            badge_config         = BADGE_DEFAULTS; // a shorter same-version blob keeps the defaults in its tail
             err                  = nvs_get_blob(nvs_handle, "badge_config", &badge_config, &required_size);
-            if (err != ESP_OK) {
+            if (err == ESP_OK && required_size != sizeof(badge_config_t)) {
+                // ponytail: an older build of this same version appended fewer fields; keep its prefix
+                ESP_LOGW(TAG, "Short badge config (%u of %u bytes), new fields use defaults", (unsigned)required_size,
+                         (unsigned)sizeof(badge_config_t));
+                save_badge_config();
+            } else if (err != ESP_OK) {
                 if (required_size != sizeof(badge_config_t)) {
                     ESP_LOGW(TAG, "Size mismatch loading badge config, using defaults");
                     badge_config = BADGE_DEFAULTS;

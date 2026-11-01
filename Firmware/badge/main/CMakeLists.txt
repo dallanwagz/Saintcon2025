@@ -12,4 +12,5 @@ idf_component_register(SRCS "main.c"
                            "nfc"
                            "nvs"
                            "ui"
-                           "wifi_manager")
+                           "wifi_manager"
+                           "wled_mirror")

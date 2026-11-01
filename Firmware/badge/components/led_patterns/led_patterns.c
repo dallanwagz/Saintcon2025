@@ -242,6 +242,12 @@ static void ease_render(uint32_t now_ms, void *user_ctx) {
 
 int led_pattern_ease(uint8_t r, uint8_t g, uint8_t b, uint32_t fade_in_ms, uint32_t hold_in_ms, uint32_t fade_out_ms,
                      uint32_t hold_out_ms, bool use_cosine_easing, uint8_t max_brightness) {
+    return led_pattern_ease_for(r, g, b, fade_in_ms, hold_in_ms, fade_out_ms, hold_out_ms, use_cosine_easing,
+                                max_brightness, 0);
+}
+
+int led_pattern_ease_for(uint8_t r, uint8_t g, uint8_t b, uint32_t fade_in_ms, uint32_t hold_in_ms, uint32_t fade_out_ms,
+                         uint32_t hold_out_ms, bool use_cosine_easing, uint8_t max_brightness, uint32_t duration_ms) {
     if (g_ease_layer >= 0) {
         led_layer_destroy(g_ease_layer);
         g_ease_layer = -1;
@@ -259,7 +265,10 @@ int led_pattern_ease(uint8_t r, uint8_t g, uint8_t b, uint32_t fade_in_ms, uint3
     g_ease_ctx.phase          = EASE_PHASE_FADE_IN;
     g_ease_ctx.phase_start_ms = esp_timer_get_time() / 1000ULL;
 
-    g_ease_layer = led_layer_create(LED_PRIORITY_LOW, ease_render, &g_ease_ctx, true, false, true);
+    // ponytail: a timed layer only deactivates (auto_destroy=false) so g_ease_layer stays a valid handle for _stop()
+    g_ease_layer = duration_ms
+                       ? led_layer_create_timed(LED_PRIORITY_MEDIUM, ease_render, &g_ease_ctx, false, true, duration_ms, false)
+                       : led_layer_create(LED_PRIORITY_MEDIUM, ease_render, &g_ease_ctx, true, false, true);
     if (g_ease_layer < 0) {
         ESP_LOGE(TAG, "Failed to create ease LED layer (err=%d)", g_ease_layer);
     }
@@ -271,101 +280,4 @@ void led_pattern_ease_stop() {
         led_layer_destroy(g_ease_layer);
         g_ease_layer = -1;
     }
-}
-
-// -------------------------------------------------------------------------------------------------
-// Idle patterns
-// -------------------------------------------------------------------------------------------------
-const char *led_idle_pattern_names[LED_IDLE_COUNT] = {"Off", "White", "Red", "Green", "Blue", "Rainbow", "Chase", "Breathe"};
-
-static led_idle_pattern_t g_idle_pattern = LED_IDLE_OFF;
-static int g_idle_layer                  = -1;
-
-// Full saturation / value hue (0-359) to RGB
-static void hsv_to_rgb(uint16_t hue, uint8_t *r, uint8_t *g, uint8_t *b) {
-    hue %= 360;
-    uint8_t region = hue / 60;
-    uint8_t t      = (uint8_t)(((hue % 60) * 255) / 60);
-    uint8_t q      = 255 - t;
-    switch (region) {
-        case 0: *r = 255; *g = t; *b = 0; break;
-        case 1: *r = q; *g = 255; *b = 0; break;
-        case 2: *r = 0; *g = 255; *b = t; break;
-        case 3: *r = 0; *g = q; *b = 255; break;
-        case 4: *r = t; *g = 0; *b = 255; break;
-        default: *r = 255; *g = 0; *b = q; break;
-    }
-}
-
-static void idle_fill(uint8_t r, uint8_t g, uint8_t b) {
-    for (int i = 0; i < NUM_LEDS; i++) {
-        led_set_scaled(i, r, g, b);
-    }
-}
-
-static void idle_render(uint32_t now_ms, void *user_ctx) {
-    (void)user_ctx;
-    switch (g_idle_pattern) {
-        case LED_IDLE_WHITE: idle_fill(255, 255, 255); break;
-        case LED_IDLE_RED: idle_fill(255, 0, 0); break;
-        case LED_IDLE_GREEN: idle_fill(0, 255, 0); break;
-        case LED_IDLE_BLUE: idle_fill(0, 0, 255); break;
-        case LED_IDLE_RAINBOW: {
-            uint16_t base = (now_ms / 20) % 360; // one full rotation every 7.2 s
-            for (int i = 0; i < NUM_LEDS; i++) {
-                uint8_t r, g, b;
-                hsv_to_rgb(base + (i * 360) / NUM_LEDS, &r, &g, &b);
-                led_set_scaled(i, r, g, b);
-            }
-            break;
-        }
-        case LED_IDLE_CHASE: {
-            // One bright dot with a 4-LED tail bouncing end to end, slowly cycling color
-            const int span   = NUM_LEDS - 1;
-            const int step   = (int)(now_ms / 60);
-            const int phase  = step % (2 * span);
-            const bool fwd   = phase <= span;
-            const int pos    = fwd ? phase : 2 * span - phase;
-            uint8_t r, g, b;
-            hsv_to_rgb((now_ms / 10) % 360, &r, &g, &b);
-            for (int trail = 0; trail < 5; trail++) {
-                int p = fwd ? pos - trail : pos + trail;
-                if (p < 0 || p >= NUM_LEDS) {
-                    continue;
-                }
-                uint8_t k = (uint8_t)(255 - trail * 50);
-                led_set_scaled(p, (r * k) / 255, (g * k) / 255, (b * k) / 255);
-            }
-            break;
-        }
-        case LED_IDLE_BREATHE: {
-            float t = (float)(now_ms % 4000) / 4000.0f;
-            float f = 0.5f - 0.5f * cosf(2.0f * (float)M_PI * t);
-            uint8_t v = (uint8_t)(f * 255.0f);
-            idle_fill(v, (v * 3) / 4, v / 4); // warm white
-            break;
-        }
-        default: break; // OFF: clear_before leaves everything dark
-    }
-}
-
-void led_idle_set(led_idle_pattern_t pattern) {
-    if (pattern >= LED_IDLE_COUNT) {
-        pattern = LED_IDLE_OFF;
-    }
-    g_idle_pattern = pattern;
-    if (g_idle_layer >= 0) {
-        led_layer_destroy(g_idle_layer);
-        g_idle_layer = -1;
-    }
-    if (pattern != LED_IDLE_OFF) {
-        g_idle_layer = led_layer_create(LED_PRIORITY_LOW, idle_render, NULL, true, false, true);
-        if (g_idle_layer < 0) {
-            ESP_LOGE(TAG, "Failed to create idle LED layer (err=%d)", g_idle_layer);
-        }
-    }
-}
-
-led_idle_pattern_t led_idle_get(void) {
-    return g_idle_pattern;
 }

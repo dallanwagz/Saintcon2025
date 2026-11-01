@@ -37,9 +37,10 @@ extern "C" {
 #include "config/config_v4.h"
 #include "config/config_v5.h"
 #include "config/config_v6.h"
+#include "config/config_v7.h"
 
 // Define the current config version
-#define BADGE_CONFIG_VERSION 6
+#define BADGE_CONFIG_VERSION 7
 
 /*******************************************************************************
  *                            BADGE CONFIGURATION                              *

@@ -1,0 +1,17 @@
+menu "Wrench LEDs (WLED mirror)"
+
+    config WLED_PRESETS_FILE
+        string "Local WLED preset table (JSON)"
+        default "wled_presets.json"
+        help
+          Path, relative to the project directory, of the git-ignored JSON file that maps HA Menu
+          labels to WLED looks (see wled_presets.example.json). A missing file builds an empty table.
+
+    config WLED_MIRROR_STATS
+        bool "Log wallpaper frame time and LED task stack every 10 s"
+        default n
+        help
+          Development aid: logs the slowest wled_fx frame and the LED render task's stack
+          high-water mark once every ~10 s.
+
+endmenu

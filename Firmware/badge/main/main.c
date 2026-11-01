@@ -18,6 +18,7 @@
 #include "ops_nfc.h"
 #include "ui.h"
 #include "wifi_manager.h"
+#include "wled_mirror.h"
 
 #include <math.h>
 
@@ -195,7 +196,8 @@ void battery_monitor_task(void *pvParameters);
 static void hid_state_changed(hid_state_t state) {
     switch (state) {
         case HID_STATE_ADVERTISING:
-            led_pattern_ease(0, 90, 255, 1200, 100, 1200, 800, true, 50); // slow blue breathe while looking for a host
+            // slow blue breathe while looking for a host; timed so the LOW wallpaper (wled_mirror) comes back after 20 s
+            led_pattern_ease_for(0, 90, 255, 1200, 100, 1200, 800, true, 50, 20000);
             break;
         case HID_STATE_CONNECTED:
         case HID_STATE_USB_CONNECTED:
@@ -285,7 +287,7 @@ void app_main(void) {
     }
     set_backlight(badge_config.screen_brightness);
     led_set_brightness(badge_config.led_brightness);
-    led_idle_set((led_idle_pattern_t)badge_config.led_pattern);
+    wled_mirror_init(); // LED wallpaper: the saved WLED look
 
     // Initialize badge NFC handling (register callback, init NFC). Not fatal: the rest of the badge still works.
     if (badge_nfc_init() != ESP_OK) {

@@ -1,0 +1,2052 @@
+{
+ "wled": {
+  "tag": "v16.0.1",
+  "commit": "29b389df1c1aaec6ff53aea742d17063b985906c",
+  "repo": "https://github.com/wled/WLED"
+ },
+ "defines": [
+  "WLED_DISABLE_2D",
+  "WLED_DISABLE_PARTICLESYSTEM2D",
+  "WLED_DISABLE_PARTICLESYSTEM1D",
+  "WLED_PS_DONT_REPLACE_FX",
+  "BOARD_HAS_PSRAM"
+ ],
+ "mode_count": 220,
+ "palettes": 72,
+ "counts": {
+  "registered": 216,
+  "included": 146,
+  "community": 0
+ },
+ "sources": {
+  "wled00/FX.cpp": "603972be73b5854edd9823b641b578d7387a337a2e528c344c27c206ec9c866f",
+  "wled00/FX.h": "82a882aec77a92d790197e95c52949d4dc30f5cfce626c71053eb70cedf8d5e8",
+  "wled00/FX_fcn.cpp": "b7690f2b4633f13f2a46ffbf3c7283bfdcd0b878039a49f3484c39589012f59a",
+  "wled00/colors.cpp": "b4932ce523bf898d53314ea4c2119a739ac1fad42ec795dd16858091c577cae5",
+  "wled00/colors.h": "38d60b5f6e37c8077bd7f00f82d7eece2d022f8de4223f4952c0a4bb10595b38",
+  "wled00/const.h": "c8a8dfe3578fb1b3d17963562f5f579eb53f0c35b560f02b468f6eca8d71f713",
+  "wled00/palettes.cpp": "6980f54ef77f227cf3753cc65d2144810e79e3ea8eb4e732f7d9ac75fcc39f6f",
+  "wled00/prng.h": "f74105e6272e09bb3174738ae2de059418fb6e0e806f2d54abd8e2feccfc35bf",
+  "wled00/src/dependencies/fastled_slim/LICENSE.txt": "12362f46ee0ecc8741954bec4097434b4d86d0a3b0d512f386a9375b1271acb9",
+  "wled00/src/dependencies/fastled_slim/fastled_slim.cpp": "f2b8776b76e763dbc3dc6012483996e43635be003c7124a02b3485afa9fcf71a",
+  "wled00/src/dependencies/fastled_slim/fastled_slim.h": "dad93635a5d3d3efddd1619af822ff6ed9b3ea0c14034e90d2f5b33a96794c9b",
+  "wled00/util.cpp": "5cf7415d4daf9148279544e74f9b8c24af92e61e564baf1d7b0f364080332e35",
+  "wled00/wled_math.cpp": "d34bf71a5e9237431f125536aa18c12f090c1c583c7e5b3fdba73fd15607e252"
+ },
+ "effects": [
+  {
+   "id": 0,
+   "sym": "FX_MODE_STATIC",
+   "fn": "mode_static",
+   "name": "Solid",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 1,
+   "sym": "FX_MODE_BLINK",
+   "fn": "mode_blink",
+   "name": "Blink",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 2,
+   "sym": "FX_MODE_BREATH",
+   "fn": "mode_breath",
+   "name": "Breathe",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 3,
+   "sym": "FX_MODE_COLOR_WIPE",
+   "fn": "mode_color_wipe",
+   "name": "Wipe",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 4,
+   "sym": "FX_MODE_COLOR_WIPE_RANDOM",
+   "fn": "mode_color_wipe_random",
+   "name": "Wipe Random",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 5,
+   "sym": "FX_MODE_RANDOM_COLOR",
+   "fn": "mode_random_color",
+   "name": "Random Colors",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 6,
+   "sym": "FX_MODE_COLOR_SWEEP",
+   "fn": "mode_color_sweep",
+   "name": "Sweep",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 7,
+   "sym": "FX_MODE_DYNAMIC",
+   "fn": "mode_dynamic",
+   "name": "Dynamic",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 8,
+   "sym": "FX_MODE_RAINBOW",
+   "fn": "mode_rainbow",
+   "name": "Colorloop",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 9,
+   "sym": "FX_MODE_RAINBOW_CYCLE",
+   "fn": "mode_rainbow_cycle",
+   "name": "Rainbow",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 10,
+   "sym": "FX_MODE_SCAN",
+   "fn": "mode_scan",
+   "name": "Scan",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 11,
+   "sym": "FX_MODE_DUAL_SCAN",
+   "fn": "mode_dual_scan",
+   "name": "Scan Dual",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 12,
+   "sym": "FX_MODE_FADE",
+   "fn": "mode_fade",
+   "name": "Fade",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 13,
+   "sym": "FX_MODE_THEATER_CHASE",
+   "fn": "mode_theater_chase",
+   "name": "Theater",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 14,
+   "sym": "FX_MODE_THEATER_CHASE_RAINBOW",
+   "fn": "mode_theater_chase_rainbow",
+   "name": "Theater Rainbow",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 15,
+   "sym": "FX_MODE_RUNNING_LIGHTS",
+   "fn": "mode_running_lights",
+   "name": "Running",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 16,
+   "sym": "FX_MODE_SAW",
+   "fn": "mode_saw",
+   "name": "Saw",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 17,
+   "sym": "FX_MODE_TWINKLE",
+   "fn": "mode_twinkle",
+   "name": "Twinkle",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 18,
+   "sym": "FX_MODE_DISSOLVE",
+   "fn": "mode_dissolve",
+   "name": "Dissolve",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 19,
+   "sym": "FX_MODE_DISSOLVE_RANDOM",
+   "fn": "mode_dissolve_random",
+   "name": "Dissolve Rnd",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 20,
+   "sym": "FX_MODE_SPARKLE",
+   "fn": "mode_sparkle",
+   "name": "Sparkle",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 21,
+   "sym": "FX_MODE_FLASH_SPARKLE",
+   "fn": "mode_flash_sparkle",
+   "name": "Sparkle Dark",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 22,
+   "sym": "FX_MODE_HYPER_SPARKLE",
+   "fn": "mode_hyper_sparkle",
+   "name": "Sparkle+",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 23,
+   "sym": "FX_MODE_STROBE",
+   "fn": "mode_strobe",
+   "name": "Strobe",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 24,
+   "sym": "FX_MODE_STROBE_RAINBOW",
+   "fn": "mode_strobe_rainbow",
+   "name": "Strobe Rainbow",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 25,
+   "sym": "FX_MODE_MULTI_STROBE",
+   "fn": "mode_multi_strobe",
+   "name": "Strobe Mega",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 26,
+   "sym": "FX_MODE_BLINK_RAINBOW",
+   "fn": "mode_blink_rainbow",
+   "name": "Blink Rainbow",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 27,
+   "sym": "FX_MODE_ANDROID",
+   "fn": "mode_android",
+   "name": "Android",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 28,
+   "sym": "FX_MODE_CHASE_COLOR",
+   "fn": "mode_chase_color",
+   "name": "Chase",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 29,
+   "sym": "FX_MODE_CHASE_RANDOM",
+   "fn": "mode_chase_random",
+   "name": "Chase Random",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 30,
+   "sym": "FX_MODE_CHASE_RAINBOW",
+   "fn": "mode_chase_rainbow",
+   "name": "Chase Rainbow",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 31,
+   "sym": "FX_MODE_CHASE_FLASH",
+   "fn": "mode_chase_flash",
+   "name": "Chase Flash",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 32,
+   "sym": "FX_MODE_CHASE_FLASH_RANDOM",
+   "fn": "mode_chase_flash_random",
+   "name": "Chase Flash Rnd",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 33,
+   "sym": "FX_MODE_CHASE_RAINBOW_WHITE",
+   "fn": "mode_chase_rainbow_white",
+   "name": "Rainbow Runner",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 34,
+   "sym": "FX_MODE_COLORFUL",
+   "fn": "mode_colorful",
+   "name": "Colorful",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 35,
+   "sym": "FX_MODE_TRAFFIC_LIGHT",
+   "fn": "mode_traffic_light",
+   "name": "Traffic Light",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 36,
+   "sym": "FX_MODE_COLOR_SWEEP_RANDOM",
+   "fn": "mode_color_sweep_random",
+   "name": "Sweep Random",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 37,
+   "sym": "FX_MODE_RUNNING_COLOR",
+   "fn": "mode_running_color",
+   "name": "Chase 2",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 38,
+   "sym": "FX_MODE_AURORA",
+   "fn": "mode_aurora",
+   "name": "Aurora",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 39,
+   "sym": "FX_MODE_RUNNING_RANDOM",
+   "fn": "mode_running_random",
+   "name": "Stream",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 40,
+   "sym": "FX_MODE_LARSON_SCANNER",
+   "fn": "mode_larson_scanner",
+   "name": "Scanner",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 41,
+   "sym": "FX_MODE_COMET",
+   "fn": "mode_comet",
+   "name": "Lighthouse",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 42,
+   "sym": "FX_MODE_FIREWORKS",
+   "fn": "mode_fireworks",
+   "name": "Fireworks",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 43,
+   "sym": "FX_MODE_RAIN",
+   "fn": "mode_rain",
+   "name": "Rain",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 44,
+   "sym": "FX_MODE_TETRIX",
+   "fn": "mode_tetrix",
+   "name": "Tetrix",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 45,
+   "sym": "FX_MODE_FIRE_FLICKER",
+   "fn": "mode_fire_flicker",
+   "name": "Fire Flicker",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 46,
+   "sym": "FX_MODE_GRADIENT",
+   "fn": "mode_gradient",
+   "name": "Gradient",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 47,
+   "sym": "FX_MODE_LOADING",
+   "fn": "mode_loading",
+   "name": "Loading",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 48,
+   "sym": "FX_MODE_ROLLINGBALLS",
+   "fn": "mode_rolling_balls",
+   "name": "Rolling Balls",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 49,
+   "sym": "FX_MODE_FAIRY",
+   "fn": "mode_fairy",
+   "name": "Fairy",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 50,
+   "sym": "FX_MODE_TWO_DOTS",
+   "fn": "mode_two_dots",
+   "name": "Two Dots",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 51,
+   "sym": "FX_MODE_FAIRYTWINKLE",
+   "fn": "mode_fairytwinkle",
+   "name": "Fairytwinkle",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 52,
+   "sym": "FX_MODE_RUNNING_DUAL",
+   "fn": "mode_running_dual",
+   "name": "Running Dual",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 53,
+   "sym": "FX_MODE_IMAGE",
+   "fn": "mode_image",
+   "name": "Image",
+   "bucket": "OTHER_BLOCKER",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 54,
+   "sym": "FX_MODE_TRICOLOR_CHASE",
+   "fn": "mode_tricolor_chase",
+   "name": "Chase 3",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 55,
+   "sym": "FX_MODE_TRICOLOR_WIPE",
+   "fn": "mode_tricolor_wipe",
+   "name": "Tri Wipe",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 56,
+   "sym": "FX_MODE_TRICOLOR_FADE",
+   "fn": "mode_tricolor_fade",
+   "name": "Tri Fade",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 57,
+   "sym": "FX_MODE_LIGHTNING",
+   "fn": "mode_lightning",
+   "name": "Lightning",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 58,
+   "sym": "FX_MODE_ICU",
+   "fn": "mode_icu",
+   "name": "ICU",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 59,
+   "sym": "FX_MODE_MULTI_COMET",
+   "fn": "mode_multi_comet",
+   "name": "Multi Comet",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 60,
+   "sym": "FX_MODE_DUAL_LARSON_SCANNER",
+   "fn": "mode_dual_larson_scanner",
+   "name": "Scanner Dual",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 61,
+   "sym": "FX_MODE_RANDOM_CHASE",
+   "fn": "mode_random_chase",
+   "name": "Stream 2",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 62,
+   "sym": "FX_MODE_OSCILLATE",
+   "fn": "mode_oscillate",
+   "name": "Oscillate",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 63,
+   "sym": "FX_MODE_PRIDE_2015",
+   "fn": "mode_pride_2015",
+   "name": "Pride 2015",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 64,
+   "sym": "FX_MODE_JUGGLE",
+   "fn": "mode_juggle",
+   "name": "Juggle",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 65,
+   "sym": "FX_MODE_PALETTE",
+   "fn": "mode_palette",
+   "name": "Palette",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 66,
+   "sym": "FX_MODE_FIRE_2012",
+   "fn": "mode_fire_2012",
+   "name": "Fire 2012",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 67,
+   "sym": "FX_MODE_COLORWAVES",
+   "fn": "mode_colorwaves",
+   "name": "Colorwaves",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 68,
+   "sym": "FX_MODE_BPM",
+   "fn": "mode_bpm",
+   "name": "Bpm",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 69,
+   "sym": "FX_MODE_FILLNOISE8",
+   "fn": "mode_fillnoise8",
+   "name": "Fill Noise",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 70,
+   "sym": "FX_MODE_NOISE16_1",
+   "fn": "mode_noise16_1",
+   "name": "Noise 1",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 71,
+   "sym": "FX_MODE_NOISE16_2",
+   "fn": "mode_noise16_2",
+   "name": "Noise 2",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 72,
+   "sym": "FX_MODE_NOISE16_3",
+   "fn": "mode_noise16_3",
+   "name": "Noise 3",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 73,
+   "sym": "FX_MODE_NOISE16_4",
+   "fn": "mode_noise16_4",
+   "name": "Noise 4",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 74,
+   "sym": "FX_MODE_COLORTWINKLE",
+   "fn": "mode_colortwinkle",
+   "name": "Colortwinkles",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 75,
+   "sym": "FX_MODE_LAKE",
+   "fn": "mode_lake",
+   "name": "Lake",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 76,
+   "sym": "FX_MODE_METEOR",
+   "fn": "mode_meteor",
+   "name": "Meteor",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 77,
+   "sym": "FX_MODE_COPY",
+   "fn": "mode_copy_segment",
+   "name": "Copy Segment",
+   "bucket": "OTHER_BLOCKER",
+   "compiled": true,
+   "included": false,
+   "why": "Copy Segment needs a second segment to copy from"
+  },
+  {
+   "id": 78,
+   "sym": "FX_MODE_RAILWAY",
+   "fn": "mode_railway",
+   "name": "Railway",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 79,
+   "sym": "FX_MODE_RIPPLE",
+   "fn": "mode_ripple",
+   "name": "Ripple",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 80,
+   "sym": "FX_MODE_TWINKLEFOX",
+   "fn": "mode_twinklefox",
+   "name": "Twinklefox",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 81,
+   "sym": "FX_MODE_TWINKLECAT",
+   "fn": "mode_twinklecat",
+   "name": "Twinklecat",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 82,
+   "sym": "FX_MODE_HALLOWEEN_EYES",
+   "fn": "mode_halloween_eyes",
+   "name": "Halloween Eyes",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 83,
+   "sym": "FX_MODE_STATIC_PATTERN",
+   "fn": "mode_static_pattern",
+   "name": "Solid Pattern",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 84,
+   "sym": "FX_MODE_TRI_STATIC_PATTERN",
+   "fn": "mode_tri_static_pattern",
+   "name": "Solid Pattern Tri",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 85,
+   "sym": "FX_MODE_SPOTS",
+   "fn": "mode_spots",
+   "name": "Spots",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 86,
+   "sym": "FX_MODE_SPOTS_FADE",
+   "fn": "mode_spots_fade",
+   "name": "Spots Fade",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 87,
+   "sym": "FX_MODE_GLITTER",
+   "fn": "mode_glitter",
+   "name": "Glitter",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 88,
+   "sym": "FX_MODE_CANDLE",
+   "fn": "mode_candle",
+   "name": "Candle",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 89,
+   "sym": "FX_MODE_STARBURST",
+   "fn": "mode_starburst",
+   "name": "Fireworks Starburst",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 90,
+   "sym": "FX_MODE_EXPLODING_FIREWORKS",
+   "fn": "mode_exploding_fireworks",
+   "name": "Fireworks 1D",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 91,
+   "sym": "FX_MODE_BOUNCINGBALLS",
+   "fn": "mode_bouncing_balls",
+   "name": "Bouncing Balls",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 92,
+   "sym": "FX_MODE_SINELON",
+   "fn": "mode_sinelon",
+   "name": "Sinelon",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 93,
+   "sym": "FX_MODE_SINELON_DUAL",
+   "fn": "mode_sinelon_dual",
+   "name": "Sinelon Dual",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 94,
+   "sym": "FX_MODE_SINELON_RAINBOW",
+   "fn": "mode_sinelon_rainbow",
+   "name": "Sinelon Rainbow",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 95,
+   "sym": "FX_MODE_POPCORN",
+   "fn": "mode_popcorn",
+   "name": "Popcorn",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 96,
+   "sym": "FX_MODE_DRIP",
+   "fn": "mode_drip",
+   "name": "Drip",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 97,
+   "sym": "FX_MODE_PLASMA",
+   "fn": "mode_plasma",
+   "name": "Plasma",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 98,
+   "sym": "FX_MODE_PERCENT",
+   "fn": "mode_percent",
+   "name": "Percent",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 99,
+   "sym": "FX_MODE_RIPPLE_RAINBOW",
+   "fn": "mode_ripple_rainbow",
+   "name": "Ripple Rainbow",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 100,
+   "sym": "FX_MODE_HEARTBEAT",
+   "fn": "mode_heartbeat",
+   "name": "Heartbeat",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 101,
+   "sym": "FX_MODE_PACIFICA",
+   "fn": "mode_pacifica",
+   "name": "Pacifica",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 102,
+   "sym": "FX_MODE_CANDLE_MULTI",
+   "fn": "mode_candle_multi",
+   "name": "Candle Multi",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 103,
+   "sym": "FX_MODE_SOLID_GLITTER",
+   "fn": "mode_solid_glitter",
+   "name": "Solid Glitter",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 104,
+   "sym": "FX_MODE_SUNRISE",
+   "fn": "mode_sunrise",
+   "name": "Sunrise",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 105,
+   "sym": "FX_MODE_PHASED",
+   "fn": "mode_phased",
+   "name": "Phased",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 106,
+   "sym": "FX_MODE_TWINKLEUP",
+   "fn": "mode_twinkleup",
+   "name": "Twinkleup",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 107,
+   "sym": "FX_MODE_NOISEPAL",
+   "fn": "mode_noisepal",
+   "name": "Noise Pal",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 108,
+   "sym": "FX_MODE_SINEWAVE",
+   "fn": "mode_sinewave",
+   "name": "Sine",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 109,
+   "sym": "FX_MODE_PHASEDNOISE",
+   "fn": "mode_phased_noise",
+   "name": "Phased Noise",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 110,
+   "sym": "FX_MODE_FLOW",
+   "fn": "mode_flow",
+   "name": "Flow",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 111,
+   "sym": "FX_MODE_CHUNCHUN",
+   "fn": "mode_chunchun",
+   "name": "Chunchun",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 112,
+   "sym": "FX_MODE_DANCING_SHADOWS",
+   "fn": "mode_dancing_shadows",
+   "name": "Dancing Shadows",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 113,
+   "sym": "FX_MODE_WASHING_MACHINE",
+   "fn": "mode_washing_machine",
+   "name": "Washing Machine",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 114,
+   "sym": "FX_MODE_2DPLASMAROTOZOOM",
+   "fn": "mode_2Dplasmarotozoom",
+   "name": "Rotozoomer",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 115,
+   "sym": "FX_MODE_BLENDS",
+   "fn": "mode_blends",
+   "name": "Blends",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 116,
+   "sym": "FX_MODE_TV_SIMULATOR",
+   "fn": "mode_tv_simulator",
+   "name": "TV Simulator",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 117,
+   "sym": "FX_MODE_DYNAMIC_SMOOTH",
+   "fn": "mode_dynamic_smooth",
+   "name": "Dynamic Smooth",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 118,
+   "sym": "FX_MODE_2DSPACESHIPS",
+   "fn": "mode_2Dspaceships",
+   "name": "Spaceships",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 119,
+   "sym": "FX_MODE_2DCRAZYBEES",
+   "fn": "mode_2Dcrazybees",
+   "name": "Crazy Bees",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 120,
+   "sym": "FX_MODE_2DGHOSTRIDER",
+   "fn": "mode_2Dghostrider",
+   "name": "Ghost Rider",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 121,
+   "sym": "FX_MODE_2DBLOBS",
+   "fn": "mode_2Dfloatingblobs",
+   "name": "Blobs",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 122,
+   "sym": "FX_MODE_2DSCROLLTEXT",
+   "fn": "mode_2Dscrollingtext",
+   "name": "Scrolling Text",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 123,
+   "sym": "FX_MODE_2DDRIFTROSE",
+   "fn": "mode_2Ddriftrose",
+   "name": "Drift Rose",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 124,
+   "sym": "FX_MODE_2DDISTORTIONWAVES",
+   "fn": "mode_2Ddistortionwaves",
+   "name": "Distortion Waves",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 125,
+   "sym": "FX_MODE_2DSOAP",
+   "fn": "mode_2Dsoap",
+   "name": "Soap",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 126,
+   "sym": "FX_MODE_2DOCTOPUS",
+   "fn": "mode_2Doctopus",
+   "name": "Octopus",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 127,
+   "sym": "FX_MODE_2DWAVINGCELL",
+   "fn": "mode_2Dwavingcell",
+   "name": "Waving Cell",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 128,
+   "sym": "FX_MODE_PIXELS",
+   "fn": "mode_pixels",
+   "name": "Pixels",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 129,
+   "sym": "FX_MODE_PIXELWAVE",
+   "fn": "mode_pixelwave",
+   "name": "Pixelwave",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 130,
+   "sym": "FX_MODE_JUGGLES",
+   "fn": "mode_juggles",
+   "name": "Juggles",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 131,
+   "sym": "FX_MODE_MATRIPIX",
+   "fn": "mode_matripix",
+   "name": "Matripix",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 132,
+   "sym": "FX_MODE_GRAVIMETER",
+   "fn": "mode_gravimeter",
+   "name": "Gravimeter",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 133,
+   "sym": "FX_MODE_PLASMOID",
+   "fn": "mode_plasmoid",
+   "name": "Plasmoid",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 134,
+   "sym": "FX_MODE_PUDDLES",
+   "fn": "mode_puddles",
+   "name": "Puddles",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 135,
+   "sym": "FX_MODE_MIDNOISE",
+   "fn": "mode_midnoise",
+   "name": "Midnoise",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 136,
+   "sym": "FX_MODE_NOISEMETER",
+   "fn": "mode_noisemeter",
+   "name": "Noisemeter",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 137,
+   "sym": "FX_MODE_FREQWAVE",
+   "fn": "mode_freqwave",
+   "name": "Freqwave",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 138,
+   "sym": "FX_MODE_FREQMATRIX",
+   "fn": "mode_freqmatrix",
+   "name": "Freqmatrix",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 139,
+   "sym": "FX_MODE_2DGEQ",
+   "fn": "mode_2DGEQ",
+   "name": "GEQ",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 140,
+   "sym": "FX_MODE_WATERFALL",
+   "fn": "mode_waterfall",
+   "name": "Waterfall",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 141,
+   "sym": "FX_MODE_FREQPIXELS",
+   "fn": "mode_freqpixels",
+   "name": "Freqpixels",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 143,
+   "sym": "FX_MODE_NOISEFIRE",
+   "fn": "mode_noisefire",
+   "name": "Noisefire",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 144,
+   "sym": "FX_MODE_PUDDLEPEAK",
+   "fn": "mode_puddlepeak",
+   "name": "Puddlepeak",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 145,
+   "sym": "FX_MODE_NOISEMOVE",
+   "fn": "mode_noisemove",
+   "name": "Noisemove",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 146,
+   "sym": "FX_MODE_2DNOISE",
+   "fn": "mode_2Dnoise",
+   "name": "Noise2D",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 147,
+   "sym": "FX_MODE_PERLINMOVE",
+   "fn": "mode_perlinmove",
+   "name": "Perlin Move",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 148,
+   "sym": "FX_MODE_RIPPLEPEAK",
+   "fn": "mode_ripplepeak",
+   "name": "Ripple Peak",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 149,
+   "sym": "FX_MODE_2DFIRENOISE",
+   "fn": "mode_2Dfirenoise",
+   "name": "Firenoise",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 150,
+   "sym": "FX_MODE_2DSQUAREDSWIRL",
+   "fn": "mode_2Dsquaredswirl",
+   "name": "Squared Swirl",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 151,
+   "sym": "FX_MODE_PACMAN",
+   "fn": "mode_pacman",
+   "name": "PacMan",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 152,
+   "sym": "FX_MODE_2DDNA",
+   "fn": "mode_2Ddna",
+   "name": "DNA",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 153,
+   "sym": "FX_MODE_2DMATRIX",
+   "fn": "mode_2Dmatrix",
+   "name": "Matrix",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 154,
+   "sym": "FX_MODE_2DMETABALLS",
+   "fn": "mode_2Dmetaballs",
+   "name": "Metaballs",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 155,
+   "sym": "FX_MODE_FREQMAP",
+   "fn": "mode_freqmap",
+   "name": "Freqmap",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 156,
+   "sym": "FX_MODE_GRAVCENTER",
+   "fn": "mode_gravcenter",
+   "name": "Gravcenter",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 157,
+   "sym": "FX_MODE_GRAVCENTRIC",
+   "fn": "mode_gravcentric",
+   "name": "Gravcentric",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 158,
+   "sym": "FX_MODE_GRAVFREQ",
+   "fn": "mode_gravfreq",
+   "name": "Gravfreq",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 159,
+   "sym": "FX_MODE_DJLIGHT",
+   "fn": "mode_DJLight",
+   "name": "DJ Light",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 160,
+   "sym": "FX_MODE_2DFUNKYPLANK",
+   "fn": "mode_2DFunkyPlank",
+   "name": "Funky Plank",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 161,
+   "sym": "FX_MODE_SHIMMER",
+   "fn": "mode_shimmer",
+   "name": "Shimmer",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 162,
+   "sym": "FX_MODE_2DPULSER",
+   "fn": "mode_2DPulser",
+   "name": "Pulser",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 163,
+   "sym": "FX_MODE_BLURZ",
+   "fn": "mode_blurz",
+   "name": "Blurz",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 164,
+   "sym": "FX_MODE_2DDRIFT",
+   "fn": "mode_2DDrift",
+   "name": "Drift",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 165,
+   "sym": "FX_MODE_2DWAVERLY",
+   "fn": "mode_2DWaverly",
+   "name": "Waverly",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 166,
+   "sym": "FX_MODE_2DSUNRADIATION",
+   "fn": "mode_2DSunradiation",
+   "name": "Sun Radiation",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 167,
+   "sym": "FX_MODE_2DCOLOREDBURSTS",
+   "fn": "mode_2DColoredBursts",
+   "name": "Colored Bursts",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 168,
+   "sym": "FX_MODE_2DJULIA",
+   "fn": "mode_2DJulia",
+   "name": "Julia",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 172,
+   "sym": "FX_MODE_2DGAMEOFLIFE",
+   "fn": "mode_2Dgameoflife",
+   "name": "Game Of Life",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 173,
+   "sym": "FX_MODE_2DTARTAN",
+   "fn": "mode_2Dtartan",
+   "name": "Tartan",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 174,
+   "sym": "FX_MODE_2DPOLARLIGHTS",
+   "fn": "mode_2DPolarLights",
+   "name": "Polar Lights",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 175,
+   "sym": "FX_MODE_2DSWIRL",
+   "fn": "mode_2DSwirl",
+   "name": "Swirl",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 176,
+   "sym": "FX_MODE_2DLISSAJOUS",
+   "fn": "mode_2DLissajous",
+   "name": "Lissajous",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 177,
+   "sym": "FX_MODE_2DFRIZZLES",
+   "fn": "mode_2DFrizzles",
+   "name": "Frizzles",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 178,
+   "sym": "FX_MODE_2DPLASMABALL",
+   "fn": "mode_2DPlasmaball",
+   "name": "Plasma Ball",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 179,
+   "sym": "FX_MODE_FLOWSTRIPE",
+   "fn": "mode_FlowStripe",
+   "name": "Flow Stripe",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 180,
+   "sym": "FX_MODE_2DHIPHOTIC",
+   "fn": "mode_2DHiphotic",
+   "name": "Hiphotic",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 181,
+   "sym": "FX_MODE_2DSINDOTS",
+   "fn": "mode_2DSindots",
+   "name": "Sindots",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 182,
+   "sym": "FX_MODE_2DDNASPIRAL",
+   "fn": "mode_2DDNASpiral",
+   "name": "DNA Spiral",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 183,
+   "sym": "FX_MODE_2DBLACKHOLE",
+   "fn": "mode_2DBlackHole",
+   "name": "Black Hole",
+   "bucket": "2D_ONLY",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 184,
+   "sym": "FX_MODE_WAVESINS",
+   "fn": "mode_wavesins",
+   "name": "Wavesins",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 185,
+   "sym": "FX_MODE_ROCKTAVES",
+   "fn": "mode_rocktaves",
+   "name": "Rocktaves",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 186,
+   "sym": "FX_MODE_2DAKEMI",
+   "fn": "mode_2DAkemi",
+   "name": "Akemi",
+   "bucket": "NEEDS_AUDIO",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 187,
+   "sym": "FX_MODE_PARTICLEVOLCANO",
+   "fn": "mode_particlevolcano",
+   "name": "PS Volcano",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 188,
+   "sym": "FX_MODE_PARTICLEFIRE",
+   "fn": "mode_particlefire",
+   "name": "PS Fire",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 189,
+   "sym": "FX_MODE_PARTICLEFIREWORKS",
+   "fn": "mode_particlefireworks",
+   "name": "PS Fireworks",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 190,
+   "sym": "FX_MODE_PARTICLEVORTEX",
+   "fn": "mode_particlevortex",
+   "name": "PS Vortex",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 191,
+   "sym": "FX_MODE_PARTICLEPERLIN",
+   "fn": "mode_particleperlin",
+   "name": "PS Fuzzy Noise",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 192,
+   "sym": "FX_MODE_PARTICLEPIT",
+   "fn": "mode_particlepit",
+   "name": "PS Ballpit",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 193,
+   "sym": "FX_MODE_PARTICLEBOX",
+   "fn": "mode_particlebox",
+   "name": "PS Box",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 194,
+   "sym": "FX_MODE_PARTICLEATTRACTOR",
+   "fn": "mode_particleattractor",
+   "name": "PS Attractor",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 195,
+   "sym": "FX_MODE_PARTICLEIMPACT",
+   "fn": "mode_particleimpact",
+   "name": "PS Impact",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 196,
+   "sym": "FX_MODE_PARTICLEWATERFALL",
+   "fn": "mode_particlewaterfall",
+   "name": "PS Waterfall",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 197,
+   "sym": "FX_MODE_PARTICLESPRAY",
+   "fn": "mode_particlespray",
+   "name": "PS Spray",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 198,
+   "sym": "FX_MODE_PARTICLESGEQ",
+   "fn": "mode_particleGEQ",
+   "name": "PS GEQ 2D",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 199,
+   "sym": "FX_MODE_PARTICLECENTERGEQ",
+   "fn": "mode_particlecenterGEQ",
+   "name": "PS GEQ Nova",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 200,
+   "sym": "FX_MODE_PARTICLEGHOSTRIDER",
+   "fn": "mode_particleghostrider",
+   "name": "PS Ghost Rider",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 201,
+   "sym": "FX_MODE_PARTICLEBLOBS",
+   "fn": "mode_particleblobs",
+   "name": "PS Blobs",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 202,
+   "sym": "FX_MODE_PSDRIP",
+   "fn": "mode_particleDrip",
+   "name": "PS DripDrop",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 203,
+   "sym": "FX_MODE_PSPINBALL",
+   "fn": "mode_particlePinball",
+   "name": "PS Pinball",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 204,
+   "sym": "FX_MODE_PSDANCINGSHADOWS",
+   "fn": "mode_particleDancingShadows",
+   "name": "PS Dancing Shadows",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 205,
+   "sym": "FX_MODE_PSFIREWORKS1D",
+   "fn": "mode_particleFireworks1D",
+   "name": "PS Fireworks 1D",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 206,
+   "sym": "FX_MODE_PSSPARKLER",
+   "fn": "mode_particleSparkler",
+   "name": "PS Sparkler",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 207,
+   "sym": "FX_MODE_PSHOURGLASS",
+   "fn": "mode_particleHourglass",
+   "name": "PS Hourglass",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 208,
+   "sym": "FX_MODE_PS1DSPRAY",
+   "fn": "mode_particle1Dspray",
+   "name": "PS Spray 1D",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 209,
+   "sym": "FX_MODE_PSBALANCE",
+   "fn": "mode_particleBalance",
+   "name": "PS 1D Balance",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 210,
+   "sym": "FX_MODE_PSCHASE",
+   "fn": "mode_particleChase",
+   "name": "PS Chase",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 211,
+   "sym": "FX_MODE_PSSTARBURST",
+   "fn": "mode_particleStarburst",
+   "name": "PS Starburst",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 212,
+   "sym": "FX_MODE_PS1DGEQ",
+   "fn": "mode_particle1DGEQ",
+   "name": "PS GEQ 1D",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 213,
+   "sym": "FX_MODE_PSFIRE1D",
+   "fn": "mode_particleFire1D",
+   "name": "PS Fire 1D",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 214,
+   "sym": "FX_MODE_PS1DSONICSTREAM",
+   "fn": "mode_particle1DsonicStream",
+   "name": "PS Sonic Stream",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 215,
+   "sym": "FX_MODE_PS1DSONICBOOM",
+   "fn": "mode_particle1DsonicBoom",
+   "name": "PS Sonic Boom",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 216,
+   "sym": "FX_MODE_PS1DSPRINGY",
+   "fn": "mode_particleSpringy",
+   "name": "PS Springy",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 217,
+   "sym": "FX_MODE_PARTICLEGALAXY",
+   "fn": "mode_particlegalaxy",
+   "name": "PS Galaxy",
+   "bucket": "PARTICLE_SYSTEM",
+   "compiled": false,
+   "included": false,
+   "why": "not compiled with WLED_DISABLE_2D,WLED_DISABLE_PARTICLESYSTEM2D,WLED_DISABLE_PARTICLESYSTEM1D,WLED_PS_DONT_REPLACE_FX,BOARD_HAS_PSRAM"
+  },
+  {
+   "id": 218,
+   "sym": "FX_MODE_COLORCLOUDS",
+   "fn": "mode_ColorClouds",
+   "name": "Color Clouds",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  },
+  {
+   "id": 219,
+   "sym": "FX_MODE_SLOW_TRANSITION",
+   "fn": "mode_slow_transition",
+   "name": "Slow Transition",
+   "bucket": "PORTABLE_1D",
+   "compiled": true,
+   "included": true
+  }
+ ]
+}

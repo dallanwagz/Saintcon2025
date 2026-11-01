@@ -11,3 +11,7 @@ debug.log
 
 .history/
 .vscode/
+# WLED mirror: household-specific strip data stays local (see tools/wled_port)
+wled_snapshot/
+wled_presets*.json
+!wled_presets.example.json

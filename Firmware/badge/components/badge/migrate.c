@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include <string.h>
 #include "esp_log.h"
 
@@ -5,6 +6,35 @@
 #include "migrate.h"
 
 static const char *TAG = "badge/config [migrate]";
+
+_Static_assert(offsetof(badge_config_v7_t, name) == offsetof(badge_config_v6_t, name), "v6 must be a prefix of v7");
+
+bool badge_wled_look_legacy(uint8_t led_pattern, badge_wled_look_t *out) {
+    // WLED defaults (Segment::setMode(fx, true) for these effects) plus a color; ids are the stock FX_MODE table
+    *out = (badge_wled_look_t){.fx = 0, .sx = 128, .ix = 128, .c1 = 128, .c2 = 128, .c3 = 16};
+    static const uint8_t solid[5][3] = {{0, 0, 0}, {255, 255, 255}, {255, 0, 0}, {0, 255, 0}, {0, 0, 255}};
+    switch (led_pattern) {
+        case 1: case 2: case 3: case 4: // White, Red, Green, Blue -> Solid
+            memcpy(out->col[0], solid[led_pattern], 3);
+            return true;
+        case 5: // Rainbow -> Rainbow
+            out->fx = 9;
+            return true;
+        case 6: // Chase (bouncing dot with a tail, cycling color) -> Scanner on the Rainbow palette
+            out->fx  = 40;
+            out->c1  = 0; // Scanner's metadata default
+            out->pal = 11;
+            memcpy(out->col[0], solid[1], 3);
+            return true;
+        case 7: // Breathe (warm white) -> Breathe
+            out->fx = 2;
+            out->col[0][0] = 255, out->col[0][1] = 191, out->col[0][2] = 64;
+            return true;
+        default: // Off: keep the default look for when the LEDs are turned back on
+            *out = BADGE_DEFAULTS.wled;
+            return false;
+    }
+}
 
 /**
  * @brief Migrates a stored badge configuration to the current version and saves it.
@@ -83,8 +113,24 @@ void migrate_badge_config(nvs_handle_t nvs_handle, uint32_t stored_version) {
         } else {
             ESP_LOGW(TAG, "Could not read v5 config, using defaults");
         }
+    } else if (stored_version == 6) {
+        badge_config_v6_t v6;
+        size_t len = sizeof(v6);
+        if (nvs_get_blob(nvs_handle, "badge_config", &v6, &len) == ESP_OK && len == sizeof(v6)) {
+            // ponytail: v7 only appends fields, so v6 is its prefix. Copy up to led_mirror, not sizeof(v6): v6's
+            // tail padding overlaps the first appended v7 fields.
+            memcpy(&cfg, &v6, offsetof(badge_config_v7_t, led_mirror));
+            cfg.version = BADGE_CONFIG_VERSION; // the appended fields keep their BADGE_DEFAULTS values
+            ESP_LOGI(TAG, "Migrated config v6 -> v%d", BADGE_CONFIG_VERSION);
+        } else {
+            ESP_LOGW(TAG, "Could not read v6 config, using defaults");
+        }
     } else {
         ESP_LOGW(TAG, "Unknown stored config version %lu, using defaults", stored_version);
+    }
+
+    if (stored_version >= 3 && stored_version <= 6) { // these had an idle pattern: carry it over as a WLED look
+        cfg.wled_on = badge_wled_look_legacy(cfg.led_pattern, &cfg.wled);
     }
 
     badge_config = cfg;

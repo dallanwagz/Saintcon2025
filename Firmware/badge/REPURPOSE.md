@@ -336,3 +336,13 @@ on a laptop, same profiles behave identically on both transports.
 2. **WiFi stays**, Kconfig-gated, default off.
 3. **Keep the two 4 MB OTA slots** for now; repartition is phase 4.
 4. **Keep the trimmed HW Test screen** (joystick, NFC comms, RGB LEDs).
+
+## 9. WLED effects and strip mirroring
+
+The wrench LEDs run WLED's 1D effects and palettes (`components/wled_fx`, EUPL-1.2, see its `NOTICE.md`).
+`components/wled_mirror` uses them as the LED wallpaper, and can copy a real WLED strip when one of its
+looks is picked in the HA Menu (Settings → Wrench LEDs). The porting tools live in `tools/wled_port`.
+Its [README](tools/wled_port/README.md) covers mirroring a strip, importing a newer WLED, adding a
+community effect and handling fx id changes. Strip snapshots and the preset table (`wled_snapshot/`,
+`wled_presets*.json`) hold household data. They are git-ignored, and only `wled_presets.example.json`
+is committed.

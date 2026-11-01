@@ -7,9 +7,8 @@
 
 #include "badge.h"
 #include "display.h"
-#include "led.h"
 #include "nav.h"
-#include "text_input.h"
+#include "kbd_popup.h"
 #include "theme.h"
 #include "ui.h"
 #include "version.h"
@@ -28,12 +27,10 @@ static lv_obj_t *brightness_slider = NULL;
 static lv_obj_t *brightness_label  = NULL;
 static lv_obj_t *timeout_slider    = NULL;
 static lv_obj_t *timeout_label     = NULL;
-static lv_obj_t *led_slider        = NULL;
-static lv_obj_t *led_label         = NULL;
-static lv_obj_t *name_input        = NULL;
+static lv_obj_t *name_btn          = NULL;
 
 // Bluetooth section: manage the HID host link and its bonds from the badge side
-#define BT_MAX_BUTTONS 12
+#define BT_MAX_BUTTONS 14
 static lv_obj_t *bt_buttons[BT_MAX_BUTTONS];
 static int bt_button_count    = 0;
 static bool s_focus_bt        = false; // focus the Bluetooth section after a rebuild
@@ -108,13 +105,6 @@ static void commit_timeout(int32_t index) {
     char buf[32];
     format_timeout_string(buf, sizeof(buf), timeout_values[index]);
     lv_label_set_text(timeout_label, buf);
-}
-
-static void commit_led(int32_t percent) {
-    badge_config.led_brightness = (uint8_t)((percent * 255) / 100);
-    save_badge_config();
-    led_set_brightness(badge_config.led_brightness);
-    lv_label_set_text_fmt(led_label, "%ld%%", (long)percent);
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -311,22 +301,27 @@ static void name_changed_cb(const char *text, void *user_data) {
     (void)user_data;
     snprintf(badge_config.name, sizeof(badge_config.name), "%s", text);
     for (int i = strlen(badge_config.name) - 1; i >= 0 && badge_config.name[i] == ' '; i--) {
-        badge_config.name[i] = '\0'; // the roller has a space; trailing ones are never wanted
+        badge_config.name[i] = '\0'; // trailing spaces are never wanted
     }
     save_badge_config();
     hid_set_name(badge_config.name);
+    lv_label_set_text_fmt(lv_obj_get_child(name_btn, 0), "%s  " LV_SYMBOL_EDIT, badge_config.name[0] ? badge_config.name : "(not set)");
+}
+
+static void name_edit_cb(lv_event_t *e) {
+    (void)e;
+    kbd_popup_open("Your name", badge_config.name, BADGE_NAME_LEN, name_changed_cb, NULL);
 }
 
 static void create_name_section(lv_obj_t *list) {
     lv_obj_t *row = create_setting_row(list, "Name");
-    // ponytail: 7 cells of 24 px + gaps fit the 192 px the row has; the widget scrolls if a font ever changes that
-    text_input_config_t cfg = {.charset = TI_ALPHA_UPPER TI_ALPHA_LOWER TI_NUMERIC " ", .max_len = BADGE_NAME_LEN, .cell_w = 24};
-    name_input              = text_input_create(row, &cfg, badge_config.name, name_changed_cb, NULL);
-    lv_obj_t *hint          = lv_label_create(row);
+    // ponytail: registered in bt_buttons too, but that list is reset right after; nav registers name_btn itself
+    name_btn = create_action_button(row, "", name_edit_cb, 0, false);
+    lv_label_set_text_fmt(lv_obj_get_child(name_btn, 0), "%s  " LV_SYMBOL_EDIT, badge_config.name[0] ? badge_config.name : "(not set)");
+    lv_obj_t *hint = lv_label_create(row);
     lv_obj_set_width(hint, lv_pct(100));
     lv_label_set_long_mode(hint, LV_LABEL_LONG_WRAP);
-    lv_label_set_text(hint, "Shown top left and as \"<name> Wrench\" when pairing. Centre: edit the letter, up/down: pick, "
-                            "right: next letter, left: delete, centre: done.");
+    lv_label_set_text(hint, "Shown top left and as \"<name> Wrench\" when pairing. Centre opens a keyboard.");
     lv_obj_set_style_text_color(hint, lv_color_hex(GRAY_SHADE_2), LV_PART_MAIN);
     lv_obj_set_style_text_font(hint, &lv_font_montserrat_12, LV_PART_MAIN);
 }
@@ -424,18 +419,15 @@ static void create_bluetooth_section(lv_obj_t *list) {
 
 static void settings_app_destroy(lv_event_t *e) {
     (void)e;
-    lv_obj_t *sliders[] = {brightness_slider, timeout_slider, led_slider};
+    lv_obj_t *sliders[] = {brightness_slider, timeout_slider};
     for (size_t i = 0; i < sizeof(sliders) / sizeof(sliders[0]); i++) {
         if (sliders[i] && lv_obj_is_valid(sliders[i])) {
             free(lv_obj_get_user_data(sliders[i]));
             lv_obj_set_user_data(sliders[i], NULL);
         }
     }
-    brightness_slider = timeout_slider = led_slider = NULL;
-    if (name_input && lv_obj_is_valid(name_input)) {
-        text_input_destroy(name_input); // frees the widget's heap state; the parent's delete would only take the objects
-    }
-    name_input = NULL;
+    brightness_slider = timeout_slider = NULL;
+    name_btn = NULL;
 }
 
 // -------------------------------------------------------------------------------------------------
@@ -568,13 +560,6 @@ void settings_app_create(lv_obj_t *parent) {
     format_timeout_string(timeout_buf, sizeof(timeout_buf), timeout_values[current_index]);
     lv_label_set_text(timeout_label, timeout_buf);
 
-    // LED brightness
-    lv_obj_t *led_row   = create_setting_row(settings_list, "LED Brightness");
-    int32_t led_percent = (badge_config.led_brightness * 100) / 255;
-    led_slider          = create_slider(led_row, 0, 100, led_percent, commit_led);
-    led_label           = create_value_label(led_row);
-    lv_label_set_text_fmt(led_label, "%ld%%", (long)led_percent);
-
     // USB keyboard + Bluetooth host link / bonds (both register their buttons in bt_buttons[])
     bt_button_count = 0;
     create_hid_section(settings_list);
@@ -595,10 +580,9 @@ static void settings_nav_setup(lv_obj_t *content_area, nav_ctx_t *nav_ctx, void 
     (void)user_data;
 
     settings_nav_ctx = nav_ctx;
-    text_input_setup_nav(name_input, nav_ctx);
+    nav_register(nav_ctx, name_btn);
     nav_register(nav_ctx, brightness_slider);
     nav_register(nav_ctx, timeout_slider);
-    nav_register(nav_ctx, led_slider);
     for (int i = 0; i < bt_button_count; i++) {
         nav_register(nav_ctx, bt_buttons[i]);
     }

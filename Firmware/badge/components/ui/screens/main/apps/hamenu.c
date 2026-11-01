@@ -14,6 +14,7 @@
 #include "nav.h"
 #include "theme.h"
 #include "ui.h"
+#include "wled_mirror.h"
 
 #include "../content.h"
 
@@ -95,6 +96,7 @@ static void row_clicked(lv_event_t *e) {
         return;
     }
     bthome_command(s_rows[i].label, i + 1);
+    wled_mirror_pick(s_rows[i].label, NULL); // Settings -> Wrench LEDs: echo the strip on the badge
     sent(s_rows[i].label);
 }
 
@@ -108,6 +110,7 @@ static void entry_clicked(lv_event_t *e) {
     }
     const hamenu_row_t *r = &s_rows[s_open_row];
     bthome_command(r->entries[k - 1], -((s_open_row + 1) * 10 + k)); // negative = rotate_left
+    wled_mirror_pick(r->label, r->entries[k - 1]);
     sent(r->entries[k - 1]);
 }
 
