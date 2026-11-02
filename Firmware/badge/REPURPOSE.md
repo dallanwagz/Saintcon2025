@@ -184,22 +184,24 @@ the badge -> Customize Additional Buttons to run a Shortcut per button. The repo
 (keys up to 0x73, 8 mouse buttons), and bonded hosts cache it: forget "SC25 Wrench" on the phone/Mac and
 re-pair after flashing, or the old map stays in use.
 
-`Home Assistant` profile (2026-10-31): the stick sends nothing to the host; each press (or 0.5 s hold =
-long press, directions only) goes out as a one-second BTHome v2 burst (`components/hid/bthome.c`, service
-data UUID 0xFCD2, trigger-based, battery + five button objects) on a non-connectable advert, which the S3
-runs even while the iPhone link is up (`hid_broadcast()` in `hid_ble.c`; while unconnected it borrows the
-slot from HID advertising, which resumes on ADV_COMPLETE). HA's Bluetooth integration or an ESPHome
-Bluetooth proxy discovers a device named "Wrench" with button_1..5 event entities and a battery sensor.
-Unencrypted: anyone in range can spoof the events; BTHome AES-CCM encryption is the next step if that matters.
-Tested 2026-10-31: all five presses decoded on a Mac bleak scan while the iPhone stayed connected, and HA
-discovered it as "SC25 Wrench" (BTHome, by the badge's BLE address) with Button 1-5 event entities
-showing press / long press and a 99 % battery sensor; the two disabled entities are the usual BTHome signal diagnostics.
+`Home Assistant` stick profile (2026-10-31, removed 2026-11-01): the stick sent BTHome button 1-5 events. It is
+gone; HA Menu below does the same job with named, numbered rows. The broadcast path it introduced stays: a
+one-second BTHome v2 burst (`components/hid/bthome.c`, service data UUID 0xFCD2, trigger-based) on a
+non-connectable advert, which the S3 runs even while the iPhone link is up (`hid_broadcast()` in `hid_ble.c`;
+while unconnected it borrows the slot from HID advertising, which resumes on ADV_COMPLETE). Unencrypted: anyone
+in range can spoof the events; BTHome AES-CCM encryption is the next step if that matters. HA's old Button 1-5
+entities and the battery sensor stop updating (the menu adverts carry neither); their automations can go.
 
-Resume at boot (2026-10-31): Settings -> HID remote -> "Resume last profile at boot" (config v5 `hid_autostart`).
-On, the badge opens HID Remote right after the splash and starts the saved profile, so a blinds remote in the
-Home Assistant profile survives a power cycle without any menu taps; hold centre 1 s to get the menu back.
+Shortcuts (2026-11-02): one-press Home Assistant macros, first on the main menu on badges that set
+`CONFIG_BADGE_SHORTCUTS` ("Lock doors;All lights off", per badge in its git-ignored defaults file; the app is hidden
+when empty). Shortcut n sends the HA Menu dimmer event rotate_right with steps = 200 + n, a range the menu rows never
+use. HA side: one automation per badge with a branch per shortcut, each running a script
+(`ha/wrench_shortcuts.yaml`). New shortcut = append a name to the list, add a script and a branch; never reorder.
 
-HA Menu (command bus, tested OK 2026-10-31): the stick profile stops at five buttons, so the "HA Menu" app is a list of named
+Open at boot (Settings -> Open at boot, config `hid_autostart`): Main menu, HID Remote (resumes the saved profile;
+hold centre 1 s to get the menu back) or HA Menu. A badge that resumed the removed stick profile opens HA Menu.
+
+HA Menu (command bus, tested OK 2026-10-31): the old stick profile stopped at five buttons, so the "HA Menu" app is a list of named
 commands instead. Picking a row broadcasts one BTHome advert carrying a dimmer event (rotate_right, steps =
 row number) and a text object with the row text; Home Assistant fires `event.<badge>_dimmer` and sets
 `sensor.<badge>_text` from the same packet. One blueprint, `ha/wrench_menu_command.yaml`, turns each row

@@ -291,7 +291,7 @@ static void usb_toggle_cb(lv_event_t *e) {
 
 static void autostart_toggle_cb(lv_event_t *e) {
     (void)e;
-    badge_config.hid_autostart = !badge_config.hid_autostart;
+    badge_config.hid_autostart = (uint8_t)((badge_config.hid_autostart + 1) % 3); // main menu -> HID Remote -> HA Menu
     save_badge_config();
     bt_rebuild();
 }
@@ -327,20 +327,16 @@ static void create_name_section(lv_obj_t *list) {
 }
 
 static void create_hid_section(lv_obj_t *list) {
-    lv_obj_t *row = create_setting_row(list, "HID remote");
+    static const char *const BOOT_NAMES[] = {"Main menu", "HID Remote", "HA Menu"};
+    uint8_t boot  = badge_config.hid_autostart < 3 ? badge_config.hid_autostart : BOOT_APP_MENU;
+    lv_obj_t *row = create_setting_row(list, "Open at boot");
     lv_obj_set_style_pad_row(row, 4, LV_PART_MAIN);
-    lv_obj_t *status = lv_label_create(row);
-    lv_obj_set_width(status, lv_pct(100));
-    lv_label_set_long_mode(status, LV_LABEL_LONG_WRAP);
-    lv_label_set_text(status, badge_config.hid_autostart ? "Resume last profile at boot: ON" : "Resume last profile at boot: OFF");
-    lv_obj_set_style_text_color(status, lv_color_hex(badge_config.hid_autostart ? GREEN_MAIN : GRAY_SHADE_1), LV_PART_MAIN);
-    lv_obj_set_style_text_font(status, &lv_font_montserrat_14, LV_PART_MAIN);
-    create_action_button(row, badge_config.hid_autostart ? "Turn off" : "Turn on", autostart_toggle_cb, 0, false);
+    lv_obj_t *btn = create_action_button(row, "", autostart_toggle_cb, 0, false);
+    lv_label_set_text_fmt(lv_obj_get_child(btn, 0), "%s  " LV_SYMBOL_RIGHT, BOOT_NAMES[boot]);
     lv_obj_t *hint = lv_label_create(row);
     lv_obj_set_width(hint, lv_pct(100));
     lv_label_set_long_mode(hint, LV_LABEL_LONG_WRAP);
-    lv_label_set_text(hint, "On: after a power cycle the badge opens HID Remote and resumes the profile it was in. "
-                            "Hold centre 1 s to get the menu back.");
+    lv_label_set_text(hint, "Centre changes it. HID Remote resumes the last profile (hold centre 1 s to leave).");
     lv_obj_set_style_text_color(hint, lv_color_hex(GRAY_SHADE_2), LV_PART_MAIN);
     lv_obj_set_style_text_font(hint, &lv_font_montserrat_12, LV_PART_MAIN);
 }

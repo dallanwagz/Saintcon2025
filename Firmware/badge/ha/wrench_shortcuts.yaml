@@ -1,0 +1,33 @@
+# Home Assistant automation for a Wrench badge's Shortcuts app: one automation per badge, one branch per shortcut.
+# Shortcut n (the n-th entry of CONFIG_BADGE_SHORTCUTS) sends the badge's dimmer event rotate_right with
+# steps = 200 + n. Each branch runs a script, so a shortcut is "one press -> one script".
+# Paste into Settings -> Automations -> Create -> Edit in YAML, set the badge's dimmer entity, and point each
+# branch at your scripts. Adding a shortcut: append it to CONFIG_BADGE_SHORTCUTS, add a branch here.
+alias: Wrench Shortcuts (<badge>)
+description: One-press macros from the badge's Shortcuts app
+mode: queued
+triggers:
+  - trigger: event.received
+    target:
+      entity_id: event.<badge>_dimmer   # the badge's BTHome "Dimmer" event entity
+    options:
+      event_type:
+        - rotate_right
+variables:
+  # Condition on the event's own attribute, never on the text sensor (HA runs this before the text is written)
+  shortcut: "{{ (state_attr(trigger.entity_id, 'steps') | int(0)) - 200 }}"
+conditions:
+  - condition: template
+    value_template: "{{ shortcut >= 1 }}"
+actions:
+  - choose:
+      - conditions: "{{ shortcut == 1 }}"   # 1st shortcut, e.g. "Lock doors"
+        sequence:
+          - action: script.turn_on
+            target:
+              entity_id: script.lock_doors
+      - conditions: "{{ shortcut == 2 }}"   # 2nd shortcut, e.g. "All lights off"
+        sequence:
+          - action: script.turn_on
+            target:
+              entity_id: script.turn_off_all_lights

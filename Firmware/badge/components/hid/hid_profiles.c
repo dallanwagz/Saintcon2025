@@ -2,7 +2,6 @@
 #include "esp_log.h"
 #include "hid.h"
 #include "joystick.h"
-#include "bthome.h"
 
 static const char *TAG = "hid_profiles";
 
@@ -10,22 +9,20 @@ static const char *TAG = "hid_profiles";
 #define MOUSE_STEP_MIN 3
 #define MOUSE_STEP_MAX 18
 
-const char *hid_profile_names[HID_PROFILE_COUNT] = {"Media Remote", "Presenter", "Arrow Keys", "Mouse", "Macro Keys", "Phone Buttons", "Home Assistant"};
+const char *hid_profile_names[HID_PROFILE_COUNT] = {"Media Remote", "Presenter", "Arrow Keys", "Mouse", "Macro Keys", "Phone Buttons"};
 const char *hid_profile_hints[HID_PROFILE_COUNT] = {
     "Up / Down: volume\nLeft / Right: previous / next track\nCenter: play / pause",
     "Right / Down: next slide\nLeft / Up: previous slide\nCenter: blank screen (B)",
     "Stick: arrow keys\nCenter: Enter",
     "Stick: move the pointer (hold to speed up)\nCenter: left click",
     "Up/Down/Left/Right: F13/F14/F15/F16\nCenter: F17\nBind them: Karabiner, Shortcuts,\niOS Full Keyboard Access",
-    "Up/Down/Left/Right: mouse buttons 4-7\nCenter: button 8\niPhone: AssistiveTouch > Pointer Devices\n> Buttons runs a Shortcut per button",
-    "Stick: HA buttons 1-4 (hold 0.5 s = long press)\nCenter: button 5\nBTHome broadcast: needs HA Bluetooth\nor an ESPHome Bluetooth proxy",
+    "Up/Down/Left/Right: mouse buttons 4-7\nCenter: button 8\niPhone: AssistiveTouch > Pointer Devices\n> Buttons runs a Shortcut per button"
 };
 
 static hid_profile_t s_profile = HID_PROFILE_MEDIA;
 static bool s_active           = false;
 static hid_exit_cb_t s_exit_cb = NULL;
 static uint8_t s_mouse_buttons = 0;
-static uint8_t s_long_sent     = 0; // Home Assistant profile: bit per direction, long press already broadcast
 
 static uint16_t media_usage(joystick_dir_t d) {
     switch (d) {
@@ -169,22 +166,6 @@ static void on_joystick(const joystick_event_t *ev, void *arg) {
                 hid_mouse(0, 0, 0, 0);
             }
             break;
-
-        case HID_PROFILE_HOME: {
-            // Nothing goes to the HID host here; the stick is a BTHome remote. Center has no long press
-            // because holding it is the exit gesture.
-            int i = dir_index(ev->dir);
-            if (ev->type == JOY_EVENT_PRESS) {
-                s_long_sent &= ~(1u << i);
-            } else if (ev->type == JOY_EVENT_HOLD && ev->dir != JOY_CENTER) {
-                s_long_sent |= 1u << i;
-                bthome_button(i, BTHOME_LONG);
-            } else if (ev->type == JOY_EVENT_RELEASE && !(s_long_sent & (1u << i)) &&
-                       (ev->dir != JOY_CENTER || center_tap)) {
-                bthome_button(i, BTHOME_PRESS);
-            }
-            break;
-        }
 
         default: break;
     }

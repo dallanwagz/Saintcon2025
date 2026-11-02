@@ -365,8 +365,19 @@ void app_main(void) {
         set_screen(SCREEN_HWTEST);
     } else {
         set_screen(SCREEN_MAIN);
-        if (badge_config.hid_autostart) {
-            launch_app(APP_HID); // the HID app resumes the saved profile on its first build (Settings -> HID remote)
+        if (badge_config.hid_profile >= HID_PROFILE_COUNT) {
+            // ponytail: the Home Assistant stick profile is gone (HA Menu replaces it); a badge that resumed it at
+            // boot opens HA Menu instead. No config version bump: the stored value itself says it is stale.
+            badge_config.hid_profile = HID_PROFILE_MEDIA;
+            if (badge_config.hid_autostart == BOOT_APP_HID) {
+                badge_config.hid_autostart = BOOT_APP_HAMENU;
+            }
+            save_badge_config();
+        }
+        if (badge_config.hid_autostart == BOOT_APP_HID) {
+            launch_app(APP_HID); // the HID app resumes the saved profile on its first build
+        } else if (badge_config.hid_autostart == BOOT_APP_HAMENU) {
+            launch_app(APP_HAMENU);
         }
     }
 }

@@ -1,5 +1,13 @@
 menu "HID remote"
 
+    config BADGE_SHORTCUTS
+        string "Shortcuts (semicolon separated, 19 characters each, 32 max; empty = no Shortcuts app)"
+        default ""
+        help
+            One-press Home Assistant macros shown first on the main menu. Shortcut n sends a BTHome dimmer
+            event rotate_right with steps = 200 + n; one HA automation per badge maps each number to a script
+            (ha/wrench_shortcuts.yaml). Append new shortcuts at the end so numbers keep their meaning.
+
     config BADGE_MENU
         string "Home Assistant menu rows (semicolon separated, 19 characters each, 32 rows max)"
         default "Lights on;Lights off;Strip|Off|Rainbow|Fire;Blinds up;Blinds down;Good night"

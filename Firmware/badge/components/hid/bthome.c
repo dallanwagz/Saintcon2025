@@ -1,5 +1,5 @@
-// BTHome v2 button events over a short non-connectable advert: Home Assistant (Bluetooth integration or an
-// ESPHome Bluetooth proxy) auto-discovers the badge and exposes one event entity per stick direction.
+// BTHome v2 menu commands over a short non-connectable advert: Home Assistant (Bluetooth integration or an
+// ESPHome Bluetooth proxy) auto-discovers the badge and exposes a dimmer event plus a text sensor (HA Menu).
 // Format: https://bthome.io/format/  (service data UUID 0xFCD2; objects in rising id order)
 #include <assert.h>
 #include <string.h>
@@ -11,39 +11,7 @@ static const char *TAG = "bthome";
 
 #define BTHOME_BURST_MS 1000 // ESPHome proxies scan a 30 ms window every 320 ms: a 300 ms burst was missed 1 in 6 on a Mac
 
-size_t bthome_pack_buttons(uint8_t out[31], uint8_t packet_id, uint8_t battery, const uint8_t events[BTHOME_BUTTONS]) {
-    size_t n = 0;
-    out[n++] = 0x02; out[n++] = 0x01; out[n++] = 0x06;      // flags
-    size_t sd = n++;                                        // service data length, filled below
-    out[n++] = 0x16; out[n++] = 0xD2; out[n++] = 0xFC;      // Service Data, UUID 0xFCD2
-    out[n++] = 0x44;                                        // BTHome v2, unencrypted, trigger-based device
-    out[n++] = 0x00; out[n++] = packet_id;                  // packet id: receivers drop repeats of the same id
-    out[n++] = 0x01; out[n++] = battery;                    // battery %
-    for (int i = 0; i < BTHOME_BUTTONS; i++) {              // button 1..5 = up, down, left, right, center
-        out[n++] = 0x3A; out[n++] = events[i];
-    }
-    out[sd] = (uint8_t)(n - sd - 1);
-    const char *name = hid_short_name();                    // shortened local name: what HA shows (7 chars max)
-    size_t nl        = strnlen(name, 7);
-    out[n++] = (uint8_t)(1 + nl); out[n++] = 0x08;
-    memcpy(out + n, name, nl); n += nl;
-    assert(n <= 31);
-    return n;
-}
-
 static uint8_t s_pid = 0; // receivers drop repeats of the same id, so every broadcast gets a fresh one
-
-void bthome_button(int button, uint8_t event) {
-    uint8_t events[BTHOME_BUTTONS] = {0};
-    if (button < 0 || button >= BTHOME_BUTTONS) {
-        return;
-    }
-    events[button] = event;
-    uint8_t adv[31];
-    size_t n = bthome_pack_buttons(adv, ++s_pid, hid_battery_percent(), events);
-    esp_err_t err = hid_broadcast(adv, (uint8_t)n, BTHOME_BURST_MS);
-    ESP_LOGI(TAG, "button %d event 0x%02x pid %u -> %s", button + 1, event, s_pid, err == ESP_OK ? "broadcast" : "radio busy");
-}
 
 size_t bthome_pack_command(uint8_t out[31], uint8_t packet_id, const char *cmd, int steps) {
     size_t len = strnlen(cmd, BTHOME_CMD_MAX);
@@ -51,8 +19,8 @@ size_t bthome_pack_command(uint8_t out[31], uint8_t packet_id, const char *cmd, 
     if (mag > 255) {
         mag = 255;
     }
-    // ponytail: no AD flags and no name. Flags are optional in a non-connectable advert and HA already knows the
-    // badge's address from the button adverts; the 11 bytes saved go to the command text.
+    // ponytail: no AD flags, name or battery. Flags are optional in a non-connectable advert and HA keys the device
+    // on its address; the bytes saved go to the command text.
     size_t n  = 0;
     size_t sd = n++;                                        // service data length, filled below
     out[n++] = 0x16; out[n++] = 0xD2; out[n++] = 0xFC;      // Service Data, UUID 0xFCD2

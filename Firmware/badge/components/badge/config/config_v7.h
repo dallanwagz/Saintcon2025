@@ -1,5 +1,10 @@
 #pragma once
 
+// hid_autostart values (v5/v6 stored 0/1, which keep their meaning)
+#define BOOT_APP_MENU   0
+#define BOOT_APP_HID    1
+#define BOOT_APP_HAMENU 2
+
 // BADGE_NAME_LEN comes from config_v6.h
 
 // The wrench LEDs' own look (the LEDs app wallpaper): the fields of a WLED segment that matter. Same meaning as
@@ -23,7 +28,7 @@ typedef struct {
     uint8_t led_pattern;       // Legacy idle pattern (v3-v6), only read by the v6 -> v7 migration
     uint8_t hid_profile;       // Active HID profile (hid_profile_t)
     uint8_t usb_hid;           // 1 = start the USB keyboard/mouse (TinyUSB) at boot; takes the USB port from the console
-    uint8_t hid_autostart;     // 1 = open HID Remote and resume hid_profile right after boot (hold centre 1 s to leave)
+    uint8_t hid_autostart;     // app opened at boot: BOOT_APP_MENU / BOOT_APP_HID (resumes hid_profile) / BOOT_APP_HAMENU
     char name[BADGE_NAME_LEN + 1]; // Owner's name, typed in Settings: status bar, "<name> Wrench" over Bluetooth/USB, BTHome
     uint8_t led_mirror;        // 1 = the wrench LEDs echo the looks picked in HA Menu popups (Settings -> Wrench LEDs)
     uint8_t wled_on;           // 1 = the manual look below is shown, 0 = wrench LEDs dark (unless HA Menu mirrors)

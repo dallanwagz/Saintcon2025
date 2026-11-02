@@ -184,7 +184,7 @@ void hid_app_create(lv_obj_t *parent) {
     // Rebuilt (e.g. on a connection change) while a profile is running: keep the panel up
     if (hid_profile_is_active()) {
         show_active_panel();
-    } else if (badge_config.hid_autostart && s_autostart_pending) {
+    } else if (badge_config.hid_autostart == BOOT_APP_HID && s_autostart_pending) {
         start_profile((hid_profile_t)badge_config.hid_profile); // resume where the badge was before the power cycle
     }
     s_autostart_pending = false;

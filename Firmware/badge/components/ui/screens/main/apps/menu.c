@@ -2,6 +2,7 @@
 #include "esp_timer.h"
 
 #include "menu.h"
+#include "shortcuts.h"
 #include "nav.h"
 #include "theme.h"
 #include "ui.h"
@@ -12,6 +13,7 @@ static const char *TAG __attribute__((unused)) = "screens/main [apps/menu]";
 
 // List of apps in the menu
 content_app_t menu_apps[] = {
+    APP_SHORTCUTS, // only on badges with CONFIG_BADGE_SHORTCUTS
     APP_LEDS,
     APP_HID,
     APP_HAMENU,
@@ -97,6 +99,9 @@ void menu_app_create(lv_obj_t *parent) {
     // Add menu items
     for (size_t i = 0; i < sizeof(menu_apps) / sizeof(menu_apps[0]); i++) {
         content_app_t app = menu_apps[i];
+        if (app == APP_SHORTCUTS && !shortcuts_available()) {
+            continue;
+        }
         lv_obj_t *btn     = lv_list_add_button(menu_list, content_app_symbols[app], get_content_app_label(app));
         lv_obj_t *icon    = lv_obj_get_child(btn, 0);
         lv_obj_set_style_text_font(icon, &fa_duotone_icons_16, LV_PART_MAIN);

@@ -15,6 +15,7 @@ extern "C" {
 #define CONTENT_APP_LIST                                \
     X(NONE,     "-",                LV_SYMBOL_DUMMY)    \
     X(MENU,     "Menu",             LV_SYMBOL_DUMMY)    \
+    X(SHORTCUTS, "Shortcuts",       FA_MAP)             \
     X(HID,      "HID Remote",       FA_DIALPAD)         \
     X(HAMENU,   "HA Menu",          FA_BINARY)          \
     X(LEDS,     "LEDs",             FA_DICE_D20)        \
