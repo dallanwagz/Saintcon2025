@@ -3,6 +3,7 @@
 # steps = 200 + n. Each branch runs a script, so a shortcut is "one press -> one script".
 # Paste into Settings -> Automations -> Create -> Edit in YAML, set the badge's dimmer entity, and point each
 # branch at your scripts. Adding a shortcut: append it to CONFIG_BADGE_SHORTCUTS, add a branch here.
+# Headings ("# Office;Office off;Strip on;# Bedroom;...") group the list on the badge and are not numbered.
 alias: Wrench Shortcuts (<badge>)
 description: One-press macros from the badge's Shortcuts app
 mode: queued
